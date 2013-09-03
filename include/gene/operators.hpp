@@ -5,7 +5,7 @@
 #ifndef OPERATORS_HEADER_SEEN_
 #define OPERATORS_HEADER_SEEN_
 
-	ara la kaliinclude <memory>
+#include <memory>
 #include "individual.hpp"
 
 namespace gene { namespace operators
@@ -13,7 +13,6 @@ namespace gene { namespace operators
 
   /****************************************************************************
    * Interface abstracting a mutation in an Individual.
-   * 
    ***************************************************************************/
   struct Mutation
   {
@@ -23,13 +22,36 @@ namespace gene { namespace operators
 
   /****************************************************************************
    * Interface abstracting the combination of two Individuals.
-   * 
    ***************************************************************************/
   struct Combination
   {
     virtual std::unique_ptr<Genotipe> combine(const Genotipe&, const Genotipe&) = 0;
     virtual ~Crossover() { /* do nothing */ }
   };
-  
+
+
+  /****************************************************************************
+   * Implementation of mutation with a fixed probability.
+   ***************************************************************************/
+  struct BitFlipMutation : public Mutation, boost::noncopyable
+  {
+    BitFlipMutation (float percentageOfMutation);
+
+    std::unique_ptr<Genotipe> mutate(const Genotipe&);
+
+    private: const float percentageOfMutation_;
+  };  
+
+  /****************************************************************************
+   * Implementation of Combination that performs one point crossover.
+   ***************************************************************************/
+  struct NPointCrossover : public Combination, boost::noncopyable
+  {
+    NPointCrossover (std::size_t numberOfPoints);
+
+    std::unique_ptr<Genotipe> combine(const Genotipe&, const Genotipe&);
+
+    private: std::size_t numberOfPoints_;
+  };
 }}
 #endif
