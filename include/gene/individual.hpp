@@ -19,7 +19,8 @@ namespace gene
  *****************************************************************************/
 struct Chromosome : boost::noncopyable
 {
-  const std::vector<uint8_t> encodedGenes;
+  const std::vector<uint8_t> encodedGenes1;
+  const std::vector<uint8_t> encodedGenes2;
 };
 
 /******************************************************************************

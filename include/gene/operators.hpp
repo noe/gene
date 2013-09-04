@@ -43,7 +43,7 @@ namespace gene { namespace operators
   };  
 
   /****************************************************************************
-   * Implementation of Combination that performs one point crossover.
+   * Implementation of Combination that performs N point crossover.
    ***************************************************************************/
   struct NPointCrossover : public Combination, boost::noncopyable
   {
