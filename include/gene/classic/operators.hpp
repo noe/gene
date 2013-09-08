@@ -53,5 +53,7 @@ namespace gene { namespace operators
 
     private: std::size_t numberOfPoints_;
   };
+
+
 }}
 #endif

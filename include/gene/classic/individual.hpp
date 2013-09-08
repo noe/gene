@@ -10,7 +10,7 @@
 #include <string>
 #include <boost/noncopyable.hpp>
 
-namespace gene
+namespace gene { namespace classic
 {
 
 /******************************************************************************
@@ -19,8 +19,7 @@ namespace gene
  *****************************************************************************/
 struct Chromosome : boost::noncopyable
 {
-  const std::vector<uint8_t> encodedGenes1;
-  const std::vector<uint8_t> encodedGenes2;
+  const std::vector<uint8_t> encodedGenes;
 };
 
 /******************************************************************************
@@ -47,5 +46,5 @@ template<Individual> struct IndividualFactory
   virtual ~IndividualFactory() { /* do nothing */ }
 };
 
-}
+}}
 #endif
