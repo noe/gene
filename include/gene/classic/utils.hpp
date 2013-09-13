@@ -5,9 +5,9 @@
 #ifndef GENE_UTILS_HEADER_SEEN__
 #define GENE_UTILS_HEADER_SEEN__
 
-namespace gene
-{
-  float similarity(const Genotipe&, const Genotipe);
+namespace gene { namespace classic { namespace utils {
 
-}
+  float similarity(const Genotipe&, const Genotipe&);
+
+}}}
 #endif

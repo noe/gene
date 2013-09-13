@@ -8,16 +8,16 @@
 #include <memory>
 #include "individual.hpp"
 
-namespace gene { namespace operators
+namespace gene { namespace classic { namespace operators
 {
-
   /****************************************************************************
    * Interface abstracting a mutation in an Individual.
    ***************************************************************************/
   struct Mutation
   {
     virtual std::unique_ptr<Genotipe> mutate(const Genotipe&) = 0;
-    virtual ~Mutation() { /* do nothing */ }
+
+    virtual ~Mutation() { }
   };
 
   /****************************************************************************
@@ -26,9 +26,9 @@ namespace gene { namespace operators
   struct Combination
   {
     virtual std::unique_ptr<Genotipe> combine(const Genotipe&, const Genotipe&) = 0;
-    virtual ~Crossover() { /* do nothing */ }
-  };
 
+    virtual ~Combination() { }
+  };
 
   /****************************************************************************
    * Implementation of mutation with a fixed probability.
@@ -51,9 +51,7 @@ namespace gene { namespace operators
 
     std::unique_ptr<Genotipe> combine(const Genotipe&, const Genotipe&);
 
-    private: std::size_t numberOfPoints_;
+    private: const std::size_t numberOfPoints_;
   };
-
-
-}}
+}}}
 #endif

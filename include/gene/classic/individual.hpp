@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <stdexcept>
 #include <boost/noncopyable.hpp>
 
 namespace gene { namespace classic
@@ -28,17 +29,17 @@ struct Chromosome : boost::noncopyable
  *****************************************************************************/
 struct Genotipe : boost::noncopyable
 {
-  const std::vector<std::unique_ptr<Chromosome>>;
-}
+  const std::vector<std::unique_ptr<Chromosome>> chromosomes;
+};
 
 /******************************************************************************
  * Interface abstracting a factory of Individuals.
  * Implementations of IndividualFactory shall create Indidividuals from
  * their Genotipe.
  *****************************************************************************/
-template<Individual> struct IndividualFactory
+template<typename Individual> struct IndividualFactory
 {
-  virtual std::string description() const () = 0;
+  virtual std::string description() const = 0;
 
   virtual std::unique_ptr<Individual> create(const Genotipe&)
                                  throw(std::invalid_argument) = 0;
