@@ -13,10 +13,10 @@ namespace gene {
 /****************************************************************************
  * Interface abstracting a mutation in a genotipe.
  ***************************************************************************/
-template<typename Genotipe>
+template<typename Genotype, typename Context>
 struct MutationStrategy
 {
-  virtual std::unique_ptr<Genotipe> mutate(const Genotipe&) = 0;
+  virtual std::unique_ptr<Genotype> mutate(const Genotype&) = 0;
   virtual ~MutationStrategy() { }
 };
 
@@ -49,19 +49,6 @@ struct ConstantMutationRate : public MutationRate<Individual>
     return mutationRate_;
   }
 };
-
-/****************************************************************************
- * Implementation of mutation with a fixed probability.
- ***************************************************************************/
-template<typename Genotype>
-struct BitFlipMutation : public MutationStrategy<Genotype>, boost::noncopyable
-{
-  BitFlipMutation (float bitMutationProbability);
-
-  std::unique_ptr<Genotipe> mutate(const Genotipe&);
-
-  private: const float percentageOfMutation_;
-};  
 
 }
 

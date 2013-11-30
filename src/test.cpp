@@ -1,12 +1,10 @@
-#include "gene/classic/individual.hpp"
-#include "gene/classic/operators.hpp"
+#include "gene/individual.hpp"
+#include "gene/operators.hpp"
 
-using namespace gene::classic;
+using namespace gene;
 
 int main(void)
 {
   Genotipe g;  
-
-
   return 0;
 }

@@ -11,8 +11,7 @@
 #include <stdexcept>
 #include <boost/noncopyable.hpp>
 
-namespace gene { namespace classic
-{
+namespace gene { namespace bitstring {
 
 /******************************************************************************
  * PoD representing a chromosome.
@@ -27,9 +26,22 @@ struct Chromosome : boost::noncopyable
  * PoD representing the genotype of an individual.
  * Immutable sequence of chromosomes.
  *****************************************************************************/
-struct Genotipe : boost::noncopyable
+struct Genotype : boost::noncopyable
 {
   const std::vector<std::unique_ptr<Chromosome>> chromosomes;
 };
 
-}
+/****************************************************************************
+ * Implementation of mutation with a fixed probability.
+ ***************************************************************************/
+struct BitFlipMutation : public MutationStrategy<Genotype>,
+                         boost::noncopyable
+{
+  BitFlipMutation (float bitMutationProbability);
+
+  std::unique_ptr<Genotipe> mutate(const Genotipe&);
+
+  private: const float percentageOfMutation_;
+};  
+
+}}

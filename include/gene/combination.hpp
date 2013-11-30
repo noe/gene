@@ -12,16 +12,18 @@ namespace gene {
 /****************************************************************************
  * Interface abstracting the combination of two Individuals.
  ***************************************************************************/
-template<typename Genotipe>
+template<typename Genotype>
 struct CombinationStrategy
 {
-  virtual std::unique_ptr<Genotipe> combine(const Genotipe&, const Genotipe&) = 0;
+  virtual std::unique_ptr<Genotype> combine(const Genotype&,
+                                            const Genotype&) = 0;
   virtual ~CombinationStrategy() { }
 };
 
 /****************************************************************************
  * Strategy for evaluating the level of attraction between individuals.
  ***************************************************************************/
+template<typename Individual>
 struct AttractionMeter
 {
   virtual attractionBetween(const Individual&, const Individual&) = 0;
@@ -34,7 +36,7 @@ struct AttractionMeter
 struct NPointCrossover : public Combination, boost::noncopyable
 {
   NPointCrossover (std::size_t numberOfPoints);
-  std::unique_ptr<Genotipe> combine(const Genotipe&, const Genotipe&);
+  std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&);
   private: const std::size_t numberOfPoints_;
 };
 

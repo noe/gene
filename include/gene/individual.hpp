@@ -8,24 +8,23 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
-#include <boost/noncopyable.hpp>
 
 namespace gene {
 
 /******************************************************************************
  * Interface abstracting a factory of Individuals.
  * Implementations of IndividualFactory shall create Indidividuals from
- * their Genotipe.
+ * their Genotype.
  *****************************************************************************/
 template<typename Individual, typename Genotype>
 struct IndividualFactory
 {
   virtual std::string description() const = 0;
 
-  virtual std::unique_ptr<Individual> create(const Genotipe&)
+  virtual std::unique_ptr<Individual> create(const Genotype&)
                                  throw(std::invalid_argument) = 0;
 
-  virtual ~IndividualFactory() { /* do nothing */ }
+  virtual ~IndividualFactory() { }
 };
 
 }
