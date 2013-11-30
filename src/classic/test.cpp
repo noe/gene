@@ -7,4 +7,6 @@ int main(void)
 {
   Genotipe g;  
 
+
+  return 0;
 }

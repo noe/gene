@@ -6,38 +6,19 @@
 #define INDIVIDUAL_HEADER_SEEN___
 
 #include <memory>
-#include <vector>
 #include <string>
 #include <stdexcept>
 #include <boost/noncopyable.hpp>
 
-namespace gene { namespace classic
-{
-
-/******************************************************************************
- * PoD representing a chromosome.
- * Immutable sequence of encoded genes.
- *****************************************************************************/
-struct Chromosome : boost::noncopyable
-{
-  const std::vector<uint8_t> encodedGenes;
-};
-
-/******************************************************************************
- * PoD representing the genotype of an individual.
- * Immutable sequence of chromosomes.
- *****************************************************************************/
-struct Genotipe : boost::noncopyable
-{
-  const std::vector<std::unique_ptr<Chromosome>> chromosomes;
-};
+namespace gene {
 
 /******************************************************************************
  * Interface abstracting a factory of Individuals.
  * Implementations of IndividualFactory shall create Indidividuals from
  * their Genotipe.
  *****************************************************************************/
-template<typename Individual> struct IndividualFactory
+template<typename Individual, typename Genotype>
+struct IndividualFactory
 {
   virtual std::string description() const = 0;
 
@@ -47,5 +28,5 @@ template<typename Individual> struct IndividualFactory
   virtual ~IndividualFactory() { /* do nothing */ }
 };
 
-}}
+}
 #endif

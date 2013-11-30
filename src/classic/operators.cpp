@@ -10,7 +10,8 @@ BitFlipMutation::BitFlipMutation (float percentageOfMutation)
   // do nothing
 }
 
-std::unique_ptr<Genotipe> BitFlipMutation::mutate(const Genotipe&)
+std::unique_ptr<Genotipe>
+BitFlipMutation::mutate(const Genotipe&)
 {
   //TODO
 }
@@ -21,7 +22,8 @@ NPointCrossover::NPointCrossover (std::size_t numberOfPoints)
   // do nothing
 }
 
-std::unique_ptr<Genotipe> NPointCrossover::combine(const Genotipe&, const Genotipe&)
+std::unique_ptr<Genotipe>
+NPointCrossover::combine(const Genotipe&, const Genotipe&)
 {
   //TODO
 }
