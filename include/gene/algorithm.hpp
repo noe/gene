@@ -11,16 +11,22 @@
 
 namespace gene {
 
+/******************************************************************************
+ *
+ *
+ *****************************************************************************/
 template<typename Individual, typename Genotype>
 struct GeneticAlgorithm
 {
   typename std::vector<std::unique_ptr<Individual>> Population;
 
   GeneticAlgorithm (IndividualFactory<Individual, Genotype>& factory,
+                    FitnessFunction
                     MutationStrategy<Genotype>& mutationStrategy,
                     MutationRate<Individual>& mutationRate,
                     AttractionMeter<Individual>& attractionMeter,
-                    CombinationStrategy<Genotype>& combinationStrategy);
+                    CombinationStrategy<Genotype>& combinationStrategy,
+                    SurvivalPolicy<Individual>& survivalPolicy);
 
   Population iterate(const Population& population);
 
@@ -31,6 +37,8 @@ struct GeneticAlgorithm
     MutationRate<Individual>& mutationRate_;
     AttractionMeter<Individual>& attractionMeter_;
     CombinationStrategy<Genotype> combinationStrategy_;
+
+    SurvivalPolicy<Individual> 
 };
 
 }

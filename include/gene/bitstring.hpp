@@ -44,4 +44,15 @@ struct BitFlipMutation : public MutationStrategy<Genotype>,
   private: const float percentageOfMutation_;
 };  
 
+/****************************************************************************
+ * Implementation of Combination that performs N point crossover.
+ ***************************************************************************/
+struct NPointCrossover : public Combination, boost::noncopyable
+{
+  NPointCrossover (std::size_t numberOfPoints);
+  std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&);
+  private: const std::size_t numberOfPoints_;
+};
+
+
 }}
