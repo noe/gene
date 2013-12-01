@@ -5,23 +5,18 @@
 #ifndef GENETIC_ALGORITHM_HEADER_SEEN___
 #define GENETIC_ALGORITHM_HEADER_SEEN___
 
-#include "gene/mutation.hpp"
-#include "gene/combination.hpp"
-#include "gene/individual.hpp"
+#include "gene/policies.hpp"
 
 namespace gene {
 
 /******************************************************************************
  *
- *
  *****************************************************************************/
 template<typename Individual, typename Genotype>
 struct GeneticAlgorithm
 {
-  typename std::vector<std::unique_ptr<Individual>> Population;
-
   GeneticAlgorithm (IndividualFactory<Individual, Genotype>& factory,
-                    FitnessFunction
+                    FitnessFunction<Individual>& fitnessFunction,
                     MutationStrategy<Genotype>& mutationStrategy,
                     MutationRate<Individual>& mutationRate,
                     AttractionMeter<Individual>& attractionMeter,
@@ -32,14 +27,16 @@ struct GeneticAlgorithm
 
   private:
 
-    IndividualFactory<Individual, Genotype> factory_;
+    IndividualFactory<Individual, Genotype>& factory_;
+    FitnessFunction<Individual>& fitnessFunction_;
     MutationStrategy<Genotype>& mutationStrategy_;
     MutationRate<Individual>& mutationRate_;
     AttractionMeter<Individual>& attractionMeter_;
-    CombinationStrategy<Genotype> combinationStrategy_;
-
-    SurvivalPolicy<Individual> 
+    CombinationStrategy<Genotype>& combinationStrategy_;
+    SurvivalPolicy<Individual>& survivalPolicy_;
 };
 
 }
+
+#include "gene/algorithm_impl.hpp"
 #endif

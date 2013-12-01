@@ -14,7 +14,7 @@ namespace gene {
  * Type representing a population
  ***************************************************************************/
 template<typename Individual>
-using Population = std::vector<std::unique_ptr<Individual>>;
+using Population = std::vector<std::shared_ptr<Individual>>;
 
 /****************************************************************************
  * Interface abstracting the combination of two Individuals.
@@ -34,6 +34,7 @@ template<typename Individual>
 struct AttractionMeter
 {
   virtual attractionBetween(const Individual&, const Individual&) = 0;
+
   virtual ~AttractionMeter() { };
 };
 
@@ -45,7 +46,7 @@ struct FitnessFunction
 {
   typename std::map<Genotype*, float> Fitness;
 
-  Fitness calculate(Population<Individual>&) = 0;
+  Fitness calculate(const Population<Individual>&) = 0;
 
   virtual ~FitnessFunction() { }
 };
@@ -73,6 +74,7 @@ template<typename Genotype, typename Context>
 struct MutationStrategy
 {
   virtual std::unique_ptr<Genotype> mutate(const Genotype&) = 0;
+
   virtual ~MutationStrategy() { }
 };
 
@@ -104,6 +106,18 @@ struct ConstantMutationRate : public MutationRate<Individual>
   {
     return mutationRate_;
   }
+};
+
+/****************************************************************************
+ * Interface abstracting the criteria for 
+ ***************************************************************************/
+template<typename Individual>
+struct SurvivalPolicy
+{
+  virtual Population sift (const Population& ancestors,
+                           const Population& offspring) = 0;
+
+  virtual ~SurvivalPolicy() { }
 };
 
 }
