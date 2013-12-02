@@ -10,6 +10,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/noncopyable.hpp>
+#include "gene/policies.hpp"
 
 namespace gene { namespace bitstring {
 
@@ -34,12 +35,12 @@ struct Genotype : boost::noncopyable
 /****************************************************************************
  * Implementation of mutation with a fixed probability.
  ***************************************************************************/
-struct BitFlipMutation : public MutationStrategy<Genotype>,
+struct BitFlipMutation : public gene::MutationStrategy<Genotype>,
                          boost::noncopyable
 {
   BitFlipMutation (float bitMutationProbability);
 
-  std::unique_ptr<Genotipe> mutate(const Genotipe&);
+  std::unique_ptr<Genotype> mutate(const Genotype&);
 
   private: const float percentageOfMutation_;
 };  
@@ -47,12 +48,14 @@ struct BitFlipMutation : public MutationStrategy<Genotype>,
 /****************************************************************************
  * Implementation of Combination that performs N point crossover.
  ***************************************************************************/
-struct NPointCrossover : public Combination, boost::noncopyable
+struct NPointCrossover : public CombinationStrategy<Genotype>,
+                         boost::noncopyable
 {
   NPointCrossover (std::size_t numberOfPoints);
   std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&);
   private: const std::size_t numberOfPoints_;
 };
 
-
 }}
+
+#endif

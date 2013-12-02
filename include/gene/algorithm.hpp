@@ -23,7 +23,7 @@ struct GeneticAlgorithm
                     CombinationStrategy<Genotype>& combinationStrategy,
                     SurvivalPolicy<Individual>& survivalPolicy);
 
-  Population iterate(const Population& population);
+  Population<Individual> iterate(const Population<Individual>& population);
 
   private:
 

@@ -31,9 +31,10 @@ GeneticAlgorithm<Individual,Genotype>::GeneticAlgorithm (
 ///////////////////////////////////////////////////////////////////////////////
 template<typename Individual>
 void fillAttractionMatrix(float** attractionMatrix,
-                          std::size_t populationSize,
+                          const Population<Individual>& population,
                           AttractionMeter<Individual>& attractionMeter)
 {
+  std::size_t populationSize = population.size();
   for (std::size_t i = 0; i < populationSize; ++i)
   {
     attractionMatrix[i][i] = 0;
@@ -43,7 +44,7 @@ void fillAttractionMatrix(float** attractionMatrix,
       Individual& individual1 = *population[i];
       Individual& individual2 = *population[j];
 
-      attractionMatrix[i][j] = attraction =
+      attractionMatrix[i][j] = 
          attractionMeter.attractionBetween(individual1, individual2);
     }
   }
@@ -58,16 +59,17 @@ Pairs<Individual> pairing (float** attractionMatrix,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-Population GeneticAlgorithm::iterate(const Population& population)
+template<typename Individual, typename Genotype>
+Population<Individual> GeneticAlgorithm<Individual,Genotype>::iterate(const Population<Individual>& population)
 {
-  Fitness fitness = fitnessFunction.calculate(population);
+  typename FitnessFunction<Individual>::Fitness fitness = fitnessFunction_.calculate(population);
   std::size_t populationSize = population.size();
   float attractionMatrix[populationSize][populationSize];
-  fillAttractionMatrix(attractionMatrix, populationSize, attractionMeter_);
+  fillAttractionMatrix(attractionMatrix, population, attractionMeter_);
   Pairs<Individual> pairs = pairing(attractionMatrix, populationSize);
   for(std::pair<Individual*,Individual*> pair : pairs)
   {
-    
+        
   }
 }
 

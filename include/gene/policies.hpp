@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <vector>
+#include <map>
+#include <cassert>
 
 namespace gene {
 
@@ -33,7 +35,7 @@ struct CombinationStrategy
 template<typename Individual>
 struct AttractionMeter
 {
-  virtual attractionBetween(const Individual&, const Individual&) = 0;
+  virtual float attractionBetween(const Individual&, const Individual&) = 0;
 
   virtual ~AttractionMeter() { };
 };
@@ -44,7 +46,7 @@ struct AttractionMeter
 template<typename Individual>
 struct FitnessFunction
 {
-  typename std::map<Genotype*, float> Fitness;
+  typedef std::map<Individual*, float> Fitness;
 
   Fitness calculate(const Population<Individual>&) = 0;
 
@@ -70,7 +72,7 @@ struct IndividualFactory
 /****************************************************************************
  * Interface abstracting a mutation in a genotipe.
  ***************************************************************************/
-template<typename Genotype, typename Context>
+template<typename Genotype>
 struct MutationStrategy
 {
   virtual std::unique_ptr<Genotype> mutate(const Genotype&) = 0;
@@ -114,8 +116,8 @@ struct ConstantMutationRate : public MutationRate<Individual>
 template<typename Individual>
 struct SurvivalPolicy
 {
-  virtual Population sift (const Population& ancestors,
-                           const Population& offspring) = 0;
+  virtual Population<Individual> sift (const Population<Individual>& ancestors,
+                                       const Population<Individual>& offspring) = 0;
 
   virtual ~SurvivalPolicy() { }
 };
