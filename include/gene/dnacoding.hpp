@@ -1,0 +1,7 @@
+#ifndef DNA_CODING_HEADER_SEEN__
+#define DNA_CODING_HEADER_SEEN__
+
+//TODO
+
+
+#endif
