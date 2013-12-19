@@ -1,9 +1,9 @@
-#include "gene/bitstring.hpp"
-#include "gene/policies.hpp"
-#include "gene/algorithm.hpp"
+#include "gene/dnacoding.hpp"
+//#include "gene/policies.hpp"
+//#include "gene/algorithm.hpp"
 
 int main(void)
 {
-  gene::bitstring::Genotype g;  
+  gene::dna::Genotype g;  
   return 0;
 }

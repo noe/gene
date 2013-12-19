@@ -1,14 +1,30 @@
 #ifndef DNA_CODING_HEADER_SEEN__
 #define DNA_CODING_HEADER_SEEN__
 
+#include <vector>
+#include <array>
+#include <memory>
+#include <boost/noncopyable.hpp>
+
+#include "gene/policies.hpp"
+
 namespace gene { namespace dna {
 
-//TODO
-enum class Base {G, A, T, C};
+enum class Base : char {G, A, T, C};
+
+typedef std::array<Base, 3>Codon;
+
+const std::vector<Codon> START_CODONS = {Codon{ Base::A, Base::T, Base::G }};
+
+const std::vector<Codon> STOP_CODONS = {Codon{ Base::T, Base::A, Base::A },
+                                        Codon{ Base::T, Base::A, Base::G },
+                                        Codon{ Base::T, Base::G, Base::A }};
+
+//TODO: re-read notes on genetics in google drive
 
 struct Chromosome : boost::noncopyable
 {
-  const std::vector<Base> encodedGenes;
+  const std::vector<Base> bases;
 };
 
 /******************************************************************************
@@ -21,19 +37,6 @@ struct Genotype : boost::noncopyable
 };
 
 /****************************************************************************
- * Implementation of mutation with a fixed probability.
- ***************************************************************************/
-struct BaseFlipMutation : public gene::MutationStrategy<Genotype>,
-                          boost::noncopyable
-{
-  BaseFlipMutation (float bitMutationProbability);
-
-  std::unique_ptr<Genotype> mutate(const Genotype&);
-
-  private: const float percentageOfMutation_;
-};  
-
-/****************************************************************************
  * Implementation of Combination that performs N point crossover.
  ***************************************************************************/
 struct SimpleCrossover : public CombinationStrategy<Genotype>,
@@ -42,6 +45,8 @@ struct SimpleCrossover : public CombinationStrategy<Genotype>,
   std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&);
 };
 
+}}
 
+#include "gene/dnacoding_impl.hpp"
 
 #endif
