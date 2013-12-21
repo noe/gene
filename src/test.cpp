@@ -1,11 +1,9 @@
-#include "gene/bitstring.hpp"
+#include "gene/dnacoding.hpp"
 #include "gene/policies.hpp"
 #include "gene/algorithm.hpp"
 
 int main(void)
 {
-  gene::bitstring::Genotype g;
-  gene::ConstantMutationRate<uint32_t> constantRate(0.5);
-  gene::OnePointCrossover crossover;
+  gene::dna::Genotype g;  
   return 0;
 }
