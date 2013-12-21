@@ -24,6 +24,9 @@ using Population = std::vector<std::shared_ptr<Individual>>;
 template<typename Genotype>
 struct CombinationStrategy
 {
+  typedef std::pair<std::unique_ptr<Individual>,
+                    std::unique_ptr<Individual>> Result;
+
   virtual std::unique_ptr<Genotype> combine(const Genotype&,
                                             const Genotype&) = 0;
   virtual ~CombinationStrategy() { }

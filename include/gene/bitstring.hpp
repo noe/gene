@@ -48,14 +48,16 @@ struct BitFlipMutation : public gene::MutationStrategy<Genotype>,
 /****************************************************************************
  * Implementation of Combination that performs N point crossover.
  ***************************************************************************/
-struct NPointCrossover : public CombinationStrategy<Genotype>,
-                         boost::noncopyable
+struct OnePointCrossover : public CombinationStrategy<Genotype>,
+                           boost::noncopyable
 {
-  NPointCrossover (std::size_t numberOfPoints);
+  OnePointCrossover ();
   std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&);
   private: const std::size_t numberOfPoints_;
 };
 
 }}
+
+#include "gene/bitstring_impl.hpp"
 
 #endif
