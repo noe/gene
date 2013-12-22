@@ -48,7 +48,7 @@ struct FitnessFunction
 {
   typedef std::map<Individual*, float> Fitness;
 
-  Fitness calculate(const Population<Individual>&) = 0;
+  virtual Fitness calculate(const Population<Individual>&) = 0;
 
   virtual ~FitnessFunction() { }
 };

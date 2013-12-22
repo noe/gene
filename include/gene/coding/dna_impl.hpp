@@ -1,11 +1,21 @@
+// Copyright (c) 2013, Noe Casas (noe.casas@gmail.com).
+// Distributed under New BSD License.
+// (see accompanying file COPYING)
 
 
 namespace gene { namespace coding { namespace dna {
 
+///////////////////////////////////////////////////////////////////////////////
+Base randomBase(std::mt19937& random)
+{
+  std::uniform_int_distribution<char> dist(0, 3);
+  return static_cast<Base>(dist(random));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 std::vector<Chromosome> meiosis (const Genotype& g, std::mt19937& random)
 {
   std::vector<Chromosome> result;
-
   std::size_t count = g.chromosomes.size() / 2;
 
   for (std::size_t k = 0; k < count; ++k)
@@ -27,16 +37,17 @@ std::vector<Chromosome> meiosis (const Genotype& g, std::mt19937& random)
     Chromosome c{std::move(mixed)};
     result.push_back(std::move(c));
   }
-
   return std::move(result);
 }
 
-SimpleCrossover::SimpleCrossover(std::size_t seed)
+///////////////////////////////////////////////////////////////////////////////
+SimpleCrossover::SimpleCrossover(uint32_t seed)
   : random_(seed)
 {
   // do nothing
 }
 
+///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Genotype> SimpleCrossover::combine(const Genotype& g1,
                                                    const Genotype& g2)
 {
@@ -48,6 +59,36 @@ std::unique_ptr<Genotype> SimpleCrossover::combine(const Genotype& g1,
             make_move_iterator(m2.end()));
 
   return std::unique_ptr<Genotype>(new Genotype(std::move(m1)));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+std::unique_ptr<Genotype> BaseMutation::mutate(const Genotype& g)
+{
+  std::vector<Chromosome> chromosomes;
+
+  for(const Chromosome& original : g.chromosomes)
+  {
+    std::vector<Base> mutatedBases;
+    mutatedBases.reserve(original.bases.size());
+    for (const Base& originalBase : original.bases)
+    {
+      bool doMutate = distribution_(random_) < percentageOfBasesToMutate_;
+      mutatedBases.push_back(doMutate ? randomBase(random_) : originalBase);
+    }
+
+    chromosomes.push_back(std::move(mutatedBases));
+  }
+
+  return std::unique_ptr<Genotype>(new Genotype(std::move(chromosomes)));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+BaseMutation::BaseMutation(float percentageOfBasesToMutate, uint32_t seed)
+  : percentageOfBasesToMutate_(percentageOfBasesToMutate),
+    random_(seed),
+    distribution_(0.0, 100.0)
+{
+  // do nothing
 }
 
 }}}
