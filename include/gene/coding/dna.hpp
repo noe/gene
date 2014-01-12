@@ -20,10 +20,14 @@ namespace gene { namespace coding { namespace dna {
  *****************************************************************************/
 enum class Base : char {G, A, T, C};
 
+const size_t NUMBER_OF_BASES = 4;
+
+const size_t CODON_SIZE = 3;
+
 /******************************************************************************
  * PoD representing a codon.
  *****************************************************************************/
-typedef std::array<Base, 3> Codon;
+typedef std::array<Base, CODON_SIZE> Codon;
 
 /******************************************************************************
  * Codons marking the start sequence of a gene.
@@ -36,6 +40,12 @@ const std::vector<Codon> START_CODONS = {Codon{{ Base::A, Base::T, Base::G }}};
 const std::vector<Codon> STOP_CODONS = {Codon{{ Base::T, Base::A, Base::A }},
                                         Codon{{ Base::T, Base::A, Base::G }},
                                         Codon{{ Base::T, Base::G, Base::A }}};
+
+/******************************************************************************
+ * 
+ *****************************************************************************/
+typedef uint8_t Aminoacid; // from 0 to 63 (i.e. 4^3 - 1)
+typedef std::vector<Aminoacid> DecodedGene;
 
 /******************************************************************************
  * PoD representing a chromosome.
@@ -76,7 +86,7 @@ struct SimpleCrossover : public CombinationStrategy<Genotype>,
 };
 
 /****************************************************************************
- * Implementation of 
+ * Implementation of MutationStrategy for DNA coded Genotypes.
  ***************************************************************************/
 struct BaseMutation : MutationStrategy<Genotype>
 {
@@ -89,6 +99,11 @@ struct BaseMutation : MutationStrategy<Genotype>
     std::mt19937 random_;
     std::uniform_real_distribution<> distribution_;
 };
+
+/****************************************************************************
+ * 
+ ***************************************************************************/
+std::vector<DecodedGene> decodeGenes (const Chromosome& chromosome);
 
 }}}
 

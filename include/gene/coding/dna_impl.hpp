@@ -2,6 +2,7 @@
 // Distributed under New BSD License.
 // (see accompanying file COPYING)
 
+#include <algorithm>
 
 namespace gene { namespace coding { namespace dna {
 
@@ -89,6 +90,82 @@ BaseMutation::BaseMutation(float percentageOfBasesToMutate, uint32_t seed)
     distribution_(0.0, 100.0)
 {
   // do nothing
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool isCodon(std::vector<Base>::const_iterator it,
+             const std::vector<Codon>& codons)
+{
+  auto func = [=](const Codon& codon)
+                 { return codon[0] == *it
+                          && codon[1] == *(it + 1)
+                          && codon[2] == *(it + 2); };
+
+  return std::find_if(std::begin(codons),
+                      std::end(codons),
+                      func) != std::end(codons);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool isStartCodon(std::vector<Base>::const_iterator it)
+{
+  return isCodon(it, START_CODONS);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool isStopCodon(std::vector<Base>::const_iterator it)
+{
+  return isCodon(it, STOP_CODONS);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+template<typename iterator>
+Aminoacid decodeCodon(iterator it)
+{
+  return static_cast<uint8_t>(*it) * 1
+           + static_cast<uint8_t>(*(it+1)) * NUMBER_OF_BASES
+           + static_cast<uint8_t>(*(it+2)) * NUMBER_OF_BASES * NUMBER_OF_BASES;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+Codon decodeCodon(Aminoacid a)
+{
+  uint8_t b1 = a / (NUMBER_OF_BASES*NUMBER_OF_BASES);
+  uint8_t b2 = (a % (NUMBER_OF_BASES*NUMBER_OF_BASES)) / NUMBER_OF_BASES;
+  uint8_t b3 = a - b1 - b2;
+  return std::move(Codon{{static_cast<Base>(b1),
+                          static_cast<Base>(b2),
+                          static_cast<Base>(b3)}});
+}
+
+///////////////////////////////////////////////////////////////////////////////
+std::vector<DecodedGene> decodeGenes (const Chromosome& chromosome)
+{
+  std::vector<DecodedGene> result;
+  size_t chromosomeLength = chromosome.bases.size();
+
+  for (size_t pos = 0; pos < chromosomeLength - CODON_SIZE; ++pos)
+  {
+    std::vector<Base>::const_iterator it1 = chromosome.bases.begin() + pos;
+
+    if (!isStartCodon(it1)) continue;
+
+    DecodedGene gene;
+    gene.push_back(decodeCodon(it1));
+ 
+    for (pos += CODON_SIZE; pos < chromosomeLength - CODON_SIZE; pos += CODON_SIZE)
+    {
+      std::vector<Base>::const_iterator it2 = chromosome.bases.begin() + pos;
+      gene.push_back(decodeCodon(it2));
+
+      if (!isStopCodon(it2)) continue;
+      result.push_back(gene);  // found a gene!
+      pos--; // leave 'pos' so that the next loop of the outer for points properly
+      break;
+    } 
+  }
+
+  return std::move(result);
 }
 
 }}}
