@@ -18,15 +18,13 @@ namespace gene { namespace coding { namespace dna {
 /******************************************************************************
  * Bases forming the DNA.
  *****************************************************************************/
-enum class Base : char {G, A, T, C};
-
 const size_t NUMBER_OF_BASES = 4;
-
-const size_t CODON_SIZE = 3;
+enum class Base : char {G, A, T, C};
 
 /******************************************************************************
  * PoD representing a codon.
  *****************************************************************************/
+const size_t CODON_SIZE = 3;
 typedef std::array<Base, CODON_SIZE> Codon;
 
 /******************************************************************************

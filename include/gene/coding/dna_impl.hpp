@@ -123,8 +123,8 @@ template<typename iterator>
 Aminoacid decodeCodon(iterator it)
 {
   return static_cast<uint8_t>(*it) * 1
-           + static_cast<uint8_t>(*(it+1)) * NUMBER_OF_BASES
-           + static_cast<uint8_t>(*(it+2)) * NUMBER_OF_BASES * NUMBER_OF_BASES;
+         + static_cast<uint8_t>(*(it+1)) * NUMBER_OF_BASES
+         + static_cast<uint8_t>(*(it+2)) * NUMBER_OF_BASES * NUMBER_OF_BASES;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,27 +144,34 @@ std::vector<DecodedGene> decodeGenes (const Chromosome& chromosome)
   std::vector<DecodedGene> result;
   size_t chromosomeLength = chromosome.bases.size();
 
+  // traverse the whole chromosome looking for genes
   for (size_t pos = 0; pos < chromosomeLength - CODON_SIZE; ++pos)
   {
     std::vector<Base>::const_iterator it1 = chromosome.bases.begin() + pos;
 
-    if (!isStartCodon(it1)) continue;
+    if (!isStartCodon(it1)) continue;  // skip until start codon
 
     DecodedGene gene;
     gene.push_back(decodeCodon(it1));
- 
-    for (pos += CODON_SIZE; pos < chromosomeLength - CODON_SIZE; pos += CODON_SIZE)
+
+    // decode codons until stop mark 
+    for (pos += CODON_SIZE;
+         pos < chromosomeLength - CODON_SIZE;
+         pos += CODON_SIZE)
     {
       std::vector<Base>::const_iterator it2 = chromosome.bases.begin() + pos;
-      gene.push_back(decodeCodon(it2));
+      gene.push_back(std::move(decodeCodon(it2)));
 
       if (!isStopCodon(it2)) continue;
-      result.push_back(gene);  // found a gene!
-      pos--; // leave 'pos' so that the next loop of the outer for points properly
+
+      // found a gene!
+      result.push_back(std::move(gene));
+
+      // leave 'pos' so that the next loop of the outer for points properly
+      pos--;
       break;
     } 
   }
-
   return std::move(result);
 }
 

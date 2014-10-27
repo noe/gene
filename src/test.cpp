@@ -3,29 +3,58 @@
 #include "gene/algorithm.hpp"
 
 #include <utility>
+#include <boost/noncopyable.hpp>
 
 using namespace gene;
 using namespace gene::coding::dna;
 
-struct Individual
+///////////////////////////////////////////////////////////////////////////////
+struct Neuron : boost::noncopyable
 {
-  //TODO
+  uint8_t x;
+  uint8_t y;
+  uint8_t z;
+  uint8_t distanceThreshold;
+  uint8_t outputThreshold;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+struct Network
+{
+  std::vector<Network> neurons;
+};
+
+///////////////////////////////////////////////////////////////////////////////
 struct MyFactory : public IndividualFactory<Individual, Genotype>
 {
   std::string description() const
   {
-    //TODO
+    return "Dummy factory";
   }
 
-  std::unique_ptr<Individual> create(const Genotype&)
-                                 throw(std::invalid_argument)
+  Neuron gene2neuron(const DecodedGene& gene)
   {
-    //TODO
+    
+  }
+
+  std::unique_ptr<Individual> create(const Genotype& genotype)
+                                  throw(std::invalid_argument)
+  {
+    std::vector<DecodedGene> genes;
+
+    for (Chromosome& chromosome : genotype.chromosomes)
+    {
+      std::vector<DecodedGene> chromGenes = decodeGenes(chromosome);
+      genes.insert(genes.end(), chromGenes.begin(), chromGenes.end);
+    }
+
+    
+
+    return std::unique_ptr<Individual>();
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 struct MyFitness : FitnessFunction<Individual>
 {
   Fitness calculate(const Population<Individual>&)
@@ -34,6 +63,7 @@ struct MyFitness : FitnessFunction<Individual>
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 struct Attraction : public AttractionMeter<Individual>
 {
   float attractionBetween(const Individual&, const Individual&)
@@ -42,6 +72,7 @@ struct Attraction : public AttractionMeter<Individual>
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 struct Survival : public SurvivalPolicy<Individual>
 {
   Population<Individual> sift (const Population<Individual>& ancestors,
@@ -51,6 +82,7 @@ struct Survival : public SurvivalPolicy<Individual>
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 int main(void)
 {
   std::vector<gene::coding::dna::Chromosome> chromosomes;
