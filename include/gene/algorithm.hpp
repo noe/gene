@@ -19,7 +19,7 @@ struct GeneticAlgorithm
                     FitnessFunction<Individual>& fitnessFunction,
                     MutationStrategy<Genotype>& mutationStrategy,
                     MutationRate<Individual>& mutationRate,
-                    AttractionMeter<Individual>& attractionMeter,
+                    MatingStrategy<Individual>& matingStrategy,
                     CombinationStrategy<Genotype>& combinationStrategy,
                     SurvivalPolicy<Individual>& survivalPolicy);
 
@@ -31,7 +31,7 @@ struct GeneticAlgorithm
     FitnessFunction<Individual>& fitnessFunction_;
     MutationStrategy<Genotype>& mutationStrategy_;
     MutationRate<Individual>& mutationRate_;
-    AttractionMeter<Individual>& attractionMeter_;
+    MatingStrategy<Individual>& matingStrategy_;
     CombinationStrategy<Genotype>& combinationStrategy_;
     SurvivalPolicy<Individual>& survivalPolicy_;
 };

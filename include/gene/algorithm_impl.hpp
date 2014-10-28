@@ -17,14 +17,14 @@ GeneticAlgorithm<Individual,Genotype>::GeneticAlgorithm (
          FitnessFunction<Individual>& fitnessFunction,
          MutationStrategy<Genotype>& mutationStrategy,
          MutationRate<Individual>& mutationRate,
-         AttractionMeter<Individual>& attractionMeter,
+         MatingStrategy<Individual>& matingStrategy,
          CombinationStrategy<Genotype>& combinationStrategy,
          SurvivalPolicy<Individual>& survivalPolicy)
   : factory_(factory),
     fitnessFunction_(fitnessFunction),
     mutationStrategy_(mutationStrategy),
     mutationRate_(mutationRate),
-    attractionMeter_(attractionMeter),
+    matingStrategy_(matingStrategy),
     combinationStrategy_(combinationStrategy),
     survivalPolicy_(survivalPolicy)
 {
@@ -68,12 +68,15 @@ Population<Individual> GeneticAlgorithm<Individual,Genotype>::iterate(const Popu
 {
   typename FitnessFunction<Individual>::Fitness fitness = fitnessFunction_.calculate(population);
   std::size_t populationSize = population.size();
-  float attractionMatrix[populationSize][populationSize];
-  fillAttractionMatrix(attractionMatrix, population, attractionMeter_);
-  Pairs<Individual> pairs = pairing(attractionMatrix, populationSize);
-  for(std::pair<Individual*,Individual*> pair : pairs)
+  //float attractionMatrix[populationSize][populationSize];
+  //fillAttractionMatrix(attractionMatrix, population, attractionMeter_);
+  //Pairs<Individual> pairs = pairing(attractionMatrix, populationSize);
+  std::vector<std::tuple<Individual*, Individual*, std::size_t>> mating =
+      matingStrategy_.mating(population);
+
+  for(std::tuple<Individual*,Individual*, std::size_t> couple: mating)
   {
-        
+    // TODO    
   }
 }
 

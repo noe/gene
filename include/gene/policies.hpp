@@ -41,6 +41,19 @@ struct AttractionMeter
 };
 
 /****************************************************************************
+ * Strategy for defining the mating among individuals.
+ ***************************************************************************/
+template<typename Individual>
+struct MatingStrategy
+{
+  virtual std::vector<std::tuple<Individual*, Individual*, std::size_t>>
+                                 mating(const Population<Individual>&) = 0;
+
+  virtual ~MatingStrategy() { };
+};
+
+
+/****************************************************************************
  * Fitness function.
  ***************************************************************************/
 template<typename Individual>
