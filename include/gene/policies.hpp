@@ -36,8 +36,7 @@ template<typename Individual>
 struct AttractionMeter
 {
   virtual float attractionBetween(const Individual&, const Individual&) = 0;
-
-  virtual ~AttractionMeter() { };
+  virtual ~AttractionMeter() { }
 };
 
 /****************************************************************************
@@ -48,7 +47,6 @@ struct MatingStrategy
 {
   virtual std::vector<std::tuple<Individual*, Individual*, std::size_t>>
                                  mating(const Population<Individual>&) = 0;
-
   virtual ~MatingStrategy() { };
 };
 
@@ -78,7 +76,6 @@ struct IndividualFactory
 
   virtual std::unique_ptr<Individual> create(const Genotype&)
                                  throw(std::invalid_argument) = 0;
-
   virtual ~IndividualFactory() { }
 };
 
@@ -89,7 +86,6 @@ template<typename Genotype>
 struct MutationStrategy
 {
   virtual std::unique_ptr<Genotype> mutate(const Genotype&) = 0;
-
   virtual ~MutationStrategy() { }
 };
 
@@ -111,13 +107,13 @@ struct ConstantMutationRate : public MutationRate<Individual>
 {
   const float mutationRate_;
 
-  inline ConstantMutationRate(float mutationRate)
+  explicit ConstantMutationRate(float mutationRate)
     : mutationRate_(mutationRate)
   {
     assert (mutationRate >= 0 && mutationRate <= 1);
   }
 
-  inline float mutationProbabilityFor(const Individual&)
+  float mutationProbabilityFor(const Individual&) override
   {
     return mutationRate_;
   }
@@ -131,7 +127,6 @@ struct SurvivalPolicy
 {
   virtual Population<Individual> sift (const Population<Individual>& ancestors,
                                        const Population<Individual>& offspring) = 0;
-
   virtual ~SurvivalPolicy() { }
 };
 
