@@ -15,25 +15,25 @@ namespace gene {
 template<typename Individual, typename Genotype>
 struct GeneticAlgorithm
 {
-  GeneticAlgorithm (IndividualFactory<Individual, Genotype>& factory,
-                    FitnessFunction<Individual>& fitnessFunction,
-                    MutationStrategy<Genotype>& mutationStrategy,
+  GeneticAlgorithm (IndividualCodec<Individual, Genotype>& codec,
+                    FitnessFunction<Individual, Genotype>& fitnessFunction,
+                    MutationStrategy<Individual, Genotype>& mutationStrategy,
                     MutationRate<Individual>& mutationRate,
-                    MatingStrategy<Individual>& matingStrategy,
+                    MatingStrategy<Individual, Genotype>& matingStrategy,
                     CombinationStrategy<Genotype>& combinationStrategy,
-                    SurvivalPolicy<Individual>& survivalPolicy);
+                    SurvivalPolicy<Individual, Genotype>& survivalPolicy);
 
-  Population<Individual> iterate(const Population<Individual>& population);
+  Population<Individual, Genotype> iterate(Population<Individual, Genotype>&& population);
 
   private:
 
-    IndividualFactory<Individual, Genotype>& factory_;
-    FitnessFunction<Individual>& fitnessFunction_;
-    MutationStrategy<Genotype>& mutationStrategy_;
+    IndividualCodec<Individual, Genotype>& codec_;
+    FitnessFunction<Individual, Genotype>& fitnessFunction_;
+    MutationStrategy<Individual, Genotype>& mutationStrategy_;
     MutationRate<Individual>& mutationRate_;
-    MatingStrategy<Individual>& matingStrategy_;
+    MatingStrategy<Individual, Genotype>& matingStrategy_;
     CombinationStrategy<Genotype>& combinationStrategy_;
-    SurvivalPolicy<Individual>& survivalPolicy_;
+    SurvivalPolicy<Individual, Genotype>& survivalPolicy_;
 };
 
 }

@@ -25,61 +25,25 @@ struct Network
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-struct MyFactory : public IndividualFactory<Individual, Genotype>
+struct MyFactory : public IndividualCodec<Network, Genotype>
 {
-  std::string description() const
-  {
-    return "Dummy factory";
-  }
-
-  Neuron gene2neuron(const DecodedGene& gene)
-  {
-    
-  }
-
-  std::unique_ptr<Individual> create(const Genotype& genotype)
-                                  throw(std::invalid_argument)
-  {
-    std::vector<DecodedGene> genes;
-
-    for (Chromosome& chromosome : genotype.chromosomes)
-    {
-      std::vector<DecodedGene> chromGenes = decodeGenes(chromosome);
-      genes.insert(genes.end(), chromGenes.begin(), chromGenes.end);
-    }
-
-    
-
-    return std::unique_ptr<Individual>();
-  }
+  Network decode(const Genotype&) const throw(std::invalid_argument) override { }
+  Genotype encode(const Network&) const override { };
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-struct MyFitness : FitnessFunction<Individual>
+struct MyFitness : FitnessFunction<Network, Genotype>
 {
-  Fitness calculate(const Population<Individual>&)
-  {
-    //TODO
-  }
+  Fitness calculate(const Population<Network, Genotype>&) override { }
 };
 
-///////////////////////////////////////////////////////////////////////////////
-struct Attraction : public AttractionMeter<Individual>
-{
-  float attractionBetween(const Individual&, const Individual&)
-  {
-    //TODO
-  }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
-struct Survival : public SurvivalPolicy<Individual>
+struct Survival : public SurvivalPolicy<Network, Genotype>
 {
-  Population<Individual> sift (const Population<Individual>& ancestors,
-                               const Population<Individual>& offspring)
-  {
-    //TODO
-  }
+  Population<Network, Genotype>
+          sift (const Population<Network, Genotype>&& ancestors,
+                const Population<Network, Genotype>&& offspring) override { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,15 +52,14 @@ int main(void)
   std::vector<gene::coding::dna::Chromosome> chromosomes;
   gene::coding::dna::Genotype g(std::move(chromosomes));
 
-  BaseMutation mutation(0.10, 423);
-  ConstantMutationRate<Individual> mutationRate(0.20);
+  BaseMutation<Network> mutation(0.10, 423);
+  ConstantMutationRate<Network> mutationRate(0.20);
   SimpleCrossover crossover(1245);
 
   MyFactory factory;
   MyFitness fitness;
-  Attraction attraction;
   Survival survival;
-
+/*
   GeneticAlgorithm<Individual, Genotype> (factory,
                                           fitness,
                                           mutation,
@@ -104,5 +67,5 @@ int main(void)
                                           attraction,
                                           crossover,
                                           survival);
-  return 0;
+*/  return 0;
 }

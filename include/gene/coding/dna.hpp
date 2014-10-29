@@ -9,7 +9,6 @@
 #include <array>
 #include <memory>
 #include <random>
-#include <boost/noncopyable.hpp>
 
 #include "gene/policies.hpp"
 
@@ -48,7 +47,7 @@ typedef std::vector<Aminoacid> DecodedGene;
 /******************************************************************************
  * PoD representing a chromosome.
  *****************************************************************************/
-struct Chromosome : boost::noncopyable
+struct Chromosome
 {
   std::vector<Base> bases;
 
@@ -63,9 +62,13 @@ struct Chromosome : boost::noncopyable
  * PoD representing the genotype of an individual.
  * Immutable sequence of chromosomes.
  *****************************************************************************/
-struct Genotype : boost::noncopyable
+struct Genotype
 {
   const std::vector<Chromosome> chromosomes;
+
+  Genotype(const Genotype&) = delete;
+
+  Genotype(const Genotype&& g) : chromosomes(std::move(g.chromosomes)) { }
 
   Genotype(std::vector<Chromosome>&& c) : chromosomes(std::move(c)) { }
 };
@@ -73,12 +76,13 @@ struct Genotype : boost::noncopyable
 /****************************************************************************
  * Implementation of Combination that performs N point crossover.
  ***************************************************************************/
-struct SimpleCrossover : public CombinationStrategy<Genotype>,
-                         boost::noncopyable
+struct SimpleCrossover : public CombinationStrategy<Genotype>
 {
-  std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&);
-
   SimpleCrossover(uint32_t seed);
+
+  SimpleCrossover(const SimpleCrossover&) = delete;
+
+  Genotype combine(const Genotype&, const Genotype&) override;
 
   private: std::mt19937 random_;
 };
@@ -86,12 +90,15 @@ struct SimpleCrossover : public CombinationStrategy<Genotype>,
 /****************************************************************************
  * Implementation of MutationStrategy for DNA coded Genotypes.
  ***************************************************************************/
-struct BaseMutation : MutationStrategy<Genotype>
+template<typename Individual>
+struct BaseMutation : MutationStrategy<Individual, Genotype>
 {
-  std::unique_ptr<Genotype> mutate(const Genotype&);
-
   BaseMutation(float percentageOfBasesToMutate, uint32_t seed);
 
+  std::pair<Individual, Genotype>
+          mutate(const Individual&,
+                 const Genotype&,
+                 const IndividualCodec<Individual, Genotype>&) override;
   private:
     const float percentageOfBasesToMutate_;
     std::mt19937 random_;

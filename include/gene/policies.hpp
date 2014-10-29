@@ -10,14 +10,15 @@
 #include <map>
 #include <cassert>
 #include <stdexcept>
+#include <functional>
 
 namespace gene {
 
 /****************************************************************************
  * Type representing a population
  ***************************************************************************/
-template<typename Individual>
-using Population = std::vector<std::shared_ptr<Individual>>;
+template<typename Individual, typename Genotype>
+using Population = std::vector<std::pair<Individual,Genotype>>;
 
 /****************************************************************************
  * Interface abstracting the combination of two Individuals.
@@ -25,42 +26,33 @@ using Population = std::vector<std::shared_ptr<Individual>>;
 template<typename Genotype>
 struct CombinationStrategy
 {
-  virtual std::unique_ptr<Genotype> combine(const Genotype&, const Genotype&) = 0;
+  virtual Genotype combine(const Genotype&, const Genotype&) = 0;
   virtual ~CombinationStrategy() { }
-};
-
-/****************************************************************************
- * Strategy for evaluating the level of attraction between individuals.
- ***************************************************************************/
-template<typename Individual>
-struct AttractionMeter
-{
-  virtual float attractionBetween(const Individual&, const Individual&) = 0;
-  virtual ~AttractionMeter() { }
 };
 
 /****************************************************************************
  * Strategy for defining the mating among individuals.
  ***************************************************************************/
-template<typename Individual>
+template<typename Individual, typename Genotype>
 struct MatingStrategy
 {
-  virtual std::vector<std::tuple<Individual*, Individual*, std::size_t>>
-                                 mating(const Population<Individual>&) = 0;
+  typedef std::reference_wrapper<Individual> Ref;
+  typedef std::vector<std::tuple<Ref, Ref, std::size_t>> Mating;
+
+  virtual Mating mating(const Population<Individual, Genotype>&) = 0;
   virtual ~MatingStrategy() { };
 };
-
 
 /****************************************************************************
  * Fitness function.
  ***************************************************************************/
-template<typename Individual>
+template<typename Individual, typename Genotype>
 struct FitnessFunction
 {
-  typedef std::map<Individual*, float> Fitness;
+  typedef std::reference_wrapper<Individual> Ref;
+  typedef std::map<Ref, float> Fitness;
 
-  virtual Fitness calculate(const Population<Individual>&) = 0;
-
+  virtual Fitness calculate(const Population<Individual, Genotype>&) = 0;
   virtual ~FitnessFunction() { }
 };
 
@@ -70,22 +62,23 @@ struct FitnessFunction
  * their Genotype.
  *****************************************************************************/
 template<typename Individual, typename Genotype>
-struct IndividualFactory
+struct IndividualCodec
 {
-  virtual std::string description() const = 0;
-
-  virtual std::unique_ptr<Individual> create(const Genotype&)
-                                 throw(std::invalid_argument) = 0;
-  virtual ~IndividualFactory() { }
+  virtual Individual decode(const Genotype&) const throw(std::invalid_argument) = 0;
+  virtual Genotype encode(const Individual&) const = 0;
+  virtual ~IndividualCodec() { }
 };
 
 /****************************************************************************
  * Interface abstracting a mutation in a genotipe.
  ***************************************************************************/
-template<typename Genotype>
+template<typename Individual, typename Genotype>
 struct MutationStrategy
 {
-  virtual std::unique_ptr<Genotype> mutate(const Genotype&) = 0;
+  virtual std::pair<Individual, Genotype>
+          mutate(const Individual&,
+                 const Genotype&,
+                 const IndividualCodec<Individual, Genotype>&) = 0;
   virtual ~MutationStrategy() { }
 };
 
@@ -107,8 +100,7 @@ struct ConstantMutationRate : public MutationRate<Individual>
 {
   const float mutationRate_;
 
-  explicit ConstantMutationRate(float mutationRate)
-    : mutationRate_(mutationRate)
+  ConstantMutationRate(float mutationRate) : mutationRate_(mutationRate)
   {
     assert (mutationRate >= 0 && mutationRate <= 1);
   }
@@ -122,11 +114,12 @@ struct ConstantMutationRate : public MutationRate<Individual>
 /****************************************************************************
  * Interface abstracting the criteria for 
  ***************************************************************************/
-template<typename Individual>
+template<typename Individual, typename Genotype>
 struct SurvivalPolicy
 {
-  virtual Population<Individual> sift (const Population<Individual>& ancestors,
-                                       const Population<Individual>& offspring) = 0;
+  virtual Population<Individual, Genotype>
+          sift (const Population<Individual, Genotype>&& ancestors,
+                const Population<Individual, Genotype>&& offspring) = 0;
   virtual ~SurvivalPolicy() { }
 };
 

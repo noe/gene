@@ -49,8 +49,8 @@ SimpleCrossover::SimpleCrossover(uint32_t seed)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::unique_ptr<Genotype> SimpleCrossover::combine(const Genotype& g1,
-                                                   const Genotype& g2)
+Genotype SimpleCrossover::combine(const Genotype& g1,
+                                  const Genotype& g2)
 {
   std::vector<Chromosome> m1 = meiosis(g1, random_);
   std::vector<Chromosome> m2 = meiosis(g2, random_);
@@ -59,11 +59,16 @@ std::unique_ptr<Genotype> SimpleCrossover::combine(const Genotype& g1,
             make_move_iterator(m2.begin()),
             make_move_iterator(m2.end()));
 
-  return std::unique_ptr<Genotype>(new Genotype(std::move(m1)));
+  Genotype combinedGenotype{std::move(m1)};
+  return std::move(combinedGenotype);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::unique_ptr<Genotype> BaseMutation::mutate(const Genotype& g)
+template<typename Individual>
+std::pair<Individual, Genotype>
+BaseMutation<Individual>::mutate(const Individual& i,
+                                 const Genotype& g,
+                                 const IndividualCodec<Individual, Genotype>& codec)
 {
   std::vector<Chromosome> chromosomes;
 
@@ -80,11 +85,14 @@ std::unique_ptr<Genotype> BaseMutation::mutate(const Genotype& g)
     chromosomes.push_back(std::move(mutatedBases));
   }
 
-  return std::unique_ptr<Genotype>(new Genotype(std::move(chromosomes)));
+  Genotype mutatedGenotype{std::move(chromosomes)};
+  Individual mutatedIndividual{codec.decode(mutatedGenotype)};
+  return make_pair(std::move(mutatedIndividual), std::move(mutatedGenotype));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-BaseMutation::BaseMutation(float percentageOfBasesToMutate, uint32_t seed)
+template<typename Individual>
+BaseMutation<Individual>::BaseMutation(float percentageOfBasesToMutate, uint32_t seed)
   : percentageOfBasesToMutate_(percentageOfBasesToMutate),
     random_(seed),
     distribution_(0.0, 100.0)
