@@ -85,9 +85,9 @@ BaseMutation<Individual>::mutate(const Individual& i,
     chromosomes.push_back(std::move(mutatedBases));
   }
 
-  Genotype mutatedGenotype{std::move(chromosomes)};
-  Individual mutatedIndividual{codec.decode(mutatedGenotype)};
-  return make_pair(std::move(mutatedIndividual), std::move(mutatedGenotype));
+  Genotype mutatedGenotype =std::move(chromosomes);
+  Individual mutatedIndividual = codec.decode(mutatedGenotype);
+  return std::make_pair(std::move(mutatedIndividual), std::move(mutatedGenotype));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

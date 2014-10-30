@@ -51,11 +51,17 @@ struct Chromosome
 {
   std::vector<Base> bases;
 
-  Chromosome(Chromosome&& other) : bases(other.bases) { }
+  //FIXME: this should not be necessary but a seemingly bug in GCC makes it so.
+  //TODO: check in future versions of GCC.
+  Chromosome(const Chromosome& other) = default;
 
-  Chromosome(std::vector<Base>&& b) : bases(std::move(b)) { }
+  Chromosome(Chromosome&& other) = default;
 
-  Chromosome& operator=(Chromosome&& rhs) { bases = rhs.bases; return *this;}
+  Chromosome(std::vector<Base> b) : bases{std::move(b)} { }
+
+  //FIXME: this should not be necessary but a seemingly bug in GCC makes it so.
+  //TODO: check in future versions of GCC.
+  Chromosome& operator=(Chromosome&& rhs) = default;
 };
 
 /******************************************************************************
@@ -66,11 +72,11 @@ struct Genotype
 {
   const std::vector<Chromosome> chromosomes;
 
-  Genotype(const Genotype&) = delete;
+  Genotype(Genotype&& g) = default;
 
-  Genotype(const Genotype&& g) : chromosomes(std::move(g.chromosomes)) { }
+  Genotype(std::vector<Chromosome> c) : chromosomes(std::move(c)) { }
 
-  Genotype(std::vector<Chromosome>&& c) : chromosomes(std::move(c)) { }
+  Genotype& operator=(Genotype&& rhs) = delete;
 };
 
 /****************************************************************************
