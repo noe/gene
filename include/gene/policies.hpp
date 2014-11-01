@@ -29,11 +29,11 @@ using Population = std::vector<Individual<Phenotype, Genotype>>;
 /****************************************************************************
  * Type representing the fitness of a population
  ***************************************************************************/
-template<typename Phenotype>
+template<typename Phenotype, typename Genotype>
 struct Fitness
 {
-  std::map<const Phenotype*, float> phenotypeToFitness;
-  std::multimap<float, const Phenotype*> fitnessToPhenotype;
+  std::map<const Individual<Phenotype, Genotype>*, float> individualToFitness;
+  std::multimap<float, const Individual<Phenotype, Genotype>*> fitnessToIndividual;
 };
 
 /******************************************************************************
@@ -73,7 +73,7 @@ struct MatingStrategy
                                  std::size_t>> Mating;
 
   virtual Mating mating(const Population<Phenotype, Genotype>&,
-                        const Fitness<Phenotype>&) = 0;
+                        const Fitness<Phenotype, Genotype>&) = 0;
   virtual ~MatingStrategy() { }
 };
 
@@ -83,7 +83,7 @@ struct MatingStrategy
 template<typename Phenotype, typename Genotype>
 struct FitnessFunction
 {
-  virtual Fitness<Phenotype> calculate(const Population<Phenotype, Genotype>&) = 0;
+  virtual Fitness<Phenotype, Genotype> calculate(const Population<Phenotype, Genotype>&) = 0;
   virtual ~FitnessFunction() { }
 };
 
@@ -136,7 +136,7 @@ struct SurvivalPolicy
   virtual Population<Phenotype, Genotype>
           selectSurvivors (Population<Phenotype, Genotype>&& ancestors,
                            Population<Phenotype, Genotype>&& offspring,
-                           const Fitness<Phenotype>& ancestorsFitness) = 0;
+                           const Fitness<Phenotype, Genotype>& ancestorsFitness) = 0;
   virtual ~SurvivalPolicy() { }
 };
 

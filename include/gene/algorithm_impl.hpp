@@ -32,7 +32,7 @@ template<typename Phenotype, typename Genotype>
 Population<Phenotype, Genotype>
 GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& population)
 {
-  Fitness<Phenotype> fitness = fitnessFunction_.calculate(population);
+  Fitness<Phenotype, Genotype> fitness = fitnessFunction_.calculate(population);
   auto mating = move(matingStrategy_.mating(population, fitness));
 
   Population<Phenotype, Genotype> offspring;
