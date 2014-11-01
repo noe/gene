@@ -15,10 +15,16 @@
 namespace gene {
 
 /****************************************************************************
+ * Type representing a XXX
+ ***************************************************************************/
+template<typename Individual, typename Genotype>
+using XXX = std::pair<Individual, Genotype>;
+
+/****************************************************************************
  * Type representing a population
  ***************************************************************************/
 template<typename Individual, typename Genotype>
-using Population = std::vector<std::pair<Individual,Genotype>>;
+using Population = std::vector<XXX<Individual, Genotype>>;
 
 /****************************************************************************
  * Interface abstracting the combination of two Individuals.
@@ -36,11 +42,10 @@ struct CombinationStrategy
 template<typename Individual, typename Genotype>
 struct MatingStrategy
 {
-  typedef std::reference_wrapper<Individual> Ref;
-  typedef std::vector<std::tuple<Ref, Ref, std::size_t>> Mating;
+  typedef std::vector<std::tuple<const XXX<Individual, Genotype>*, const XXX<Individual, Genotype>*, std::size_t>> Mating;
 
   virtual Mating mating(const Population<Individual, Genotype>&) = 0;
-  virtual ~MatingStrategy() { };
+  virtual ~MatingStrategy() { }
 };
 
 /****************************************************************************
@@ -49,8 +54,7 @@ struct MatingStrategy
 template<typename Individual, typename Genotype>
 struct FitnessFunction
 {
-  typedef std::reference_wrapper<Individual> Ref;
-  typedef std::map<Ref, float> Fitness;
+  typedef std::map<const Individual*, float> Fitness;
 
   virtual Fitness calculate(const Population<Individual, Genotype>&) = 0;
   virtual ~FitnessFunction() { }
@@ -75,10 +79,9 @@ struct IndividualCodec
 template<typename Individual, typename Genotype>
 struct MutationStrategy
 {
-  virtual std::pair<Individual, Genotype>
-          mutate(const Individual&,
-                 const Genotype&,
-                 const IndividualCodec<Individual, Genotype>&) = 0;
+  virtual XXX<Individual, Genotype> mutate(Individual,
+                                           Genotype,
+                                           const IndividualCodec<Individual, Genotype>&) = 0;
   virtual ~MutationStrategy() { }
 };
 
@@ -118,8 +121,8 @@ template<typename Individual, typename Genotype>
 struct SurvivalPolicy
 {
   virtual Population<Individual, Genotype>
-          sift (const Population<Individual, Genotype>&& ancestors,
-                const Population<Individual, Genotype>&& offspring) = 0;
+          selectSurvivors (Population<Individual, Genotype>&& ancestors,
+                           Population<Individual, Genotype>&& offspring) = 0;
   virtual ~SurvivalPolicy() { }
 };
 
