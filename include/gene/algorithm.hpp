@@ -20,7 +20,7 @@ struct GeneticAlgorithm
                     MutationStrategy<Phenotype, Genotype>& mutationStrategy,
                     MutationRate<Phenotype>& mutationRate,
                     MatingStrategy<Phenotype, Genotype>& matingStrategy,
-                    CombinationStrategy<Genotype>& combinationStrategy,
+                    CombinationStrategy<Phenotype, Genotype>& combinationStrategy,
                     SurvivalPolicy<Phenotype, Genotype>& survivalPolicy);
 
   Population<Phenotype, Genotype> iterate(Population<Phenotype, Genotype>&& population);
@@ -32,7 +32,7 @@ struct GeneticAlgorithm
     MutationStrategy<Phenotype, Genotype>& mutationStrategy_;
     MutationRate<Phenotype>& mutationRate_;
     MatingStrategy<Phenotype, Genotype>& matingStrategy_;
-    CombinationStrategy<Genotype>& combinationStrategy_;
+    CombinationStrategy<Phenotype, Genotype>& combinationStrategy_;
     SurvivalPolicy<Phenotype, Genotype>& survivalPolicy_;
 };
 
