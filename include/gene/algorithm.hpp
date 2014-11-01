@@ -12,28 +12,28 @@ namespace gene {
 /******************************************************************************
  *
  *****************************************************************************/
-template<typename Individual, typename Genotype>
+template<typename Phenotype, typename Genotype>
 struct GeneticAlgorithm
 {
-  GeneticAlgorithm (IndividualCodec<Individual, Genotype>& codec,
-                    FitnessFunction<Individual, Genotype>& fitnessFunction,
-                    MutationStrategy<Individual, Genotype>& mutationStrategy,
-                    MutationRate<Individual>& mutationRate,
-                    MatingStrategy<Individual, Genotype>& matingStrategy,
+  GeneticAlgorithm (Codec<Phenotype, Genotype>& codec,
+                    FitnessFunction<Phenotype, Genotype>& fitnessFunction,
+                    MutationStrategy<Phenotype, Genotype>& mutationStrategy,
+                    MutationRate<Phenotype>& mutationRate,
+                    MatingStrategy<Phenotype, Genotype>& matingStrategy,
                     CombinationStrategy<Genotype>& combinationStrategy,
-                    SurvivalPolicy<Individual, Genotype>& survivalPolicy);
+                    SurvivalPolicy<Phenotype, Genotype>& survivalPolicy);
 
-  Population<Individual, Genotype> iterate(Population<Individual, Genotype>&& population);
+  Population<Phenotype, Genotype> iterate(Population<Phenotype, Genotype>&& population);
 
   private:
 
-    IndividualCodec<Individual, Genotype>& codec_;
-    FitnessFunction<Individual, Genotype>& fitnessFunction_;
-    MutationStrategy<Individual, Genotype>& mutationStrategy_;
-    MutationRate<Individual>& mutationRate_;
-    MatingStrategy<Individual, Genotype>& matingStrategy_;
+    Codec<Phenotype, Genotype>& codec_;
+    FitnessFunction<Phenotype, Genotype>& fitnessFunction_;
+    MutationStrategy<Phenotype, Genotype>& mutationStrategy_;
+    MutationRate<Phenotype>& mutationRate_;
+    MatingStrategy<Phenotype, Genotype>& matingStrategy_;
     CombinationStrategy<Genotype>& combinationStrategy_;
-    SurvivalPolicy<Individual, Genotype>& survivalPolicy_;
+    SurvivalPolicy<Phenotype, Genotype>& survivalPolicy_;
 };
 
 }

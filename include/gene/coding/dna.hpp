@@ -96,15 +96,15 @@ struct SimpleCrossover : public CombinationStrategy<Genotype>
 /****************************************************************************
  * Implementation of MutationStrategy for DNA coded Genotypes.
  ***************************************************************************/
-template<typename Individual>
-struct BaseMutation : MutationStrategy<Individual, Genotype>
+template<typename Phenotype>
+struct BaseMutation : MutationStrategy<Phenotype, Genotype>
 {
   BaseMutation(float percentageOfBasesToMutate, uint32_t seed);
 
-  std::pair<Individual, Genotype>
-          mutate(const Individual&,
-                 const Genotype&,
-                 const IndividualCodec<Individual, Genotype>&) override;
+  std::pair<Phenotype, Genotype>
+          mutate(Phenotype,
+                 Genotype,
+                 const Codec<Phenotype, Genotype>&) override;
   private:
     const float percentageOfBasesToMutate_;
     std::mt19937 random_;

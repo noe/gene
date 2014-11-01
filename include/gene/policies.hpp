@@ -15,16 +15,16 @@
 namespace gene {
 
 /****************************************************************************
- * Type representing a XXX
+ * Type representing a Individual
  ***************************************************************************/
-template<typename Individual, typename Genotype>
-using XXX = std::pair<Individual, Genotype>;
+template<typename Phenotype, typename Genotype>
+using Individual = std::pair<Phenotype, Genotype>;
 
 /****************************************************************************
  * Type representing a population
  ***************************************************************************/
-template<typename Individual, typename Genotype>
-using Population = std::vector<XXX<Individual, Genotype>>;
+template<typename Phenotype, typename Genotype>
+using Population = std::vector<Individual<Phenotype, Genotype>>;
 
 /****************************************************************************
  * Interface abstracting the combination of two Individuals.
@@ -39,24 +39,24 @@ struct CombinationStrategy
 /****************************************************************************
  * Strategy for defining the mating among individuals.
  ***************************************************************************/
-template<typename Individual, typename Genotype>
+template<typename Phenotype, typename Genotype>
 struct MatingStrategy
 {
-  typedef std::vector<std::tuple<const XXX<Individual, Genotype>*, const XXX<Individual, Genotype>*, std::size_t>> Mating;
+  typedef std::vector<std::tuple<const Individual<Phenotype, Genotype>*, const Individual<Phenotype, Genotype>*, std::size_t>> Mating;
 
-  virtual Mating mating(const Population<Individual, Genotype>&) = 0;
+  virtual Mating mating(const Population<Phenotype, Genotype>&) = 0;
   virtual ~MatingStrategy() { }
 };
 
 /****************************************************************************
  * Fitness function.
  ***************************************************************************/
-template<typename Individual, typename Genotype>
+template<typename Phenotype, typename Genotype>
 struct FitnessFunction
 {
-  typedef std::map<const Individual*, float> Fitness;
+  typedef std::map<const Phenotype*, float> Fitness;
 
-  virtual Fitness calculate(const Population<Individual, Genotype>&) = 0;
+  virtual Fitness calculate(const Population<Phenotype, Genotype>&) = 0;
   virtual ~FitnessFunction() { }
 };
 
@@ -65,41 +65,41 @@ struct FitnessFunction
  * Implementations of IndividualFactory shall create Indidividuals from
  * their Genotype.
  *****************************************************************************/
-template<typename Individual, typename Genotype>
-struct IndividualCodec
+template<typename Phenotype, typename Genotype>
+struct Codec
 {
-  virtual Individual decode(const Genotype&) const throw(std::invalid_argument) = 0;
-  virtual Genotype encode(const Individual&) const = 0;
-  virtual ~IndividualCodec() { }
+  virtual Phenotype decode(const Genotype&) const throw(std::invalid_argument) = 0;
+  virtual Genotype encode(const Phenotype&) const = 0;
+  virtual ~Codec() { }
 };
 
 /****************************************************************************
  * Interface abstracting a mutation in a genotipe.
  ***************************************************************************/
-template<typename Individual, typename Genotype>
+template<typename Phenotype, typename Genotype>
 struct MutationStrategy
 {
-  virtual XXX<Individual, Genotype> mutate(Individual,
-                                           Genotype,
-                                           const IndividualCodec<Individual, Genotype>&) = 0;
+  virtual Individual<Phenotype, Genotype> mutate(Phenotype,
+                                       Genotype,
+                                       const Codec<Phenotype, Genotype>&) = 0;
   virtual ~MutationStrategy() { }
 };
 
 /****************************************************************************
  * Interface abstracting the provider of mutation rate.
  ***************************************************************************/
-template<typename Individual>
+template<typename Phenotype>
 struct MutationRate
 {
-  virtual float mutationProbabilityFor(const Individual&) = 0;
+  virtual float mutationProbabilityFor(const Phenotype&) = 0;
   virtual ~MutationRate() { }
 };
 
 /****************************************************************************
  * Implementation of MutationRate that always returns a constant.
  ***************************************************************************/
-template<typename Individual>
-struct ConstantMutationRate : public MutationRate<Individual>
+template<typename Phenotype>
+struct ConstantMutationRate : public MutationRate<Phenotype>
 {
   const float mutationRate_;
 
@@ -108,7 +108,7 @@ struct ConstantMutationRate : public MutationRate<Individual>
     assert (mutationRate >= 0 && mutationRate <= 1);
   }
 
-  float mutationProbabilityFor(const Individual&) override
+  float mutationProbabilityFor(const Phenotype&) override
   {
     return mutationRate_;
   }
@@ -117,12 +117,12 @@ struct ConstantMutationRate : public MutationRate<Individual>
 /****************************************************************************
  * Interface abstracting the criteria for 
  ***************************************************************************/
-template<typename Individual, typename Genotype>
+template<typename Phenotype, typename Genotype>
 struct SurvivalPolicy
 {
-  virtual Population<Individual, Genotype>
-          selectSurvivors (Population<Individual, Genotype>&& ancestors,
-                           Population<Individual, Genotype>&& offspring) = 0;
+  virtual Population<Phenotype, Genotype>
+          selectSurvivors (Population<Phenotype, Genotype>&& ancestors,
+                           Population<Phenotype, Genotype>&& offspring) = 0;
   virtual ~SurvivalPolicy() { }
 };
 

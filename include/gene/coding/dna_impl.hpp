@@ -64,11 +64,11 @@ Genotype SimpleCrossover::combine(const Genotype& g1,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-template<typename Individual>
-std::pair<Individual, Genotype>
-BaseMutation<Individual>::mutate(const Individual& i,
-                                 const Genotype& g,
-                                 const IndividualCodec<Individual, Genotype>& codec)
+template<typename Phenotype>
+std::pair<Phenotype, Genotype>
+BaseMutation<Phenotype>::mutate(Phenotype i,
+                                Genotype g,
+                                const Codec<Phenotype, Genotype>& codec)
 {
   std::vector<Chromosome> chromosomes;
 
@@ -86,13 +86,13 @@ BaseMutation<Individual>::mutate(const Individual& i,
   }
 
   Genotype mutatedGenotype =std::move(chromosomes);
-  Individual mutatedIndividual = codec.decode(mutatedGenotype);
-  return std::make_pair(std::move(mutatedIndividual), std::move(mutatedGenotype));
+  Phenotype mutatedPhenotype = codec.decode(mutatedGenotype);
+  return std::make_pair(std::move(mutatedPhenotype), std::move(mutatedGenotype));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-template<typename Individual>
-BaseMutation<Individual>::BaseMutation(float percentageOfBasesToMutate, uint32_t seed)
+template<typename Phenotype>
+BaseMutation<Phenotype>::BaseMutation(float percentageOfBasesToMutate, uint32_t seed)
   : percentageOfBasesToMutate_(percentageOfBasesToMutate),
     random_(seed),
     distribution_(0.0, 100.0)

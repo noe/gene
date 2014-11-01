@@ -7,15 +7,15 @@
 namespace gene {
 
 ///////////////////////////////////////////////////////////////////////////////
-template<typename Individual, typename Genotype>
-GeneticAlgorithm<Individual,Genotype>::GeneticAlgorithm (
-         IndividualCodec<Individual, Genotype>& codec,
-         FitnessFunction<Individual, Genotype>& fitnessFunction,
-         MutationStrategy<Individual, Genotype>& mutationStrategy,
-         MutationRate<Individual>& mutationRate,
-         MatingStrategy<Individual, Genotype>& matingStrategy,
+template<typename Phenotype, typename Genotype>
+GeneticAlgorithm<Phenotype,Genotype>::GeneticAlgorithm (
+         Codec<Phenotype, Genotype>& codec,
+         FitnessFunction<Phenotype, Genotype>& fitnessFunction,
+         MutationStrategy<Phenotype, Genotype>& mutationStrategy,
+         MutationRate<Phenotype>& mutationRate,
+         MatingStrategy<Phenotype, Genotype>& matingStrategy,
          CombinationStrategy<Genotype>& combinationStrategy,
-         SurvivalPolicy<Individual, Genotype>& survivalPolicy)
+         SurvivalPolicy<Phenotype, Genotype>& survivalPolicy)
   : codec_(codec),
     fitnessFunction_(fitnessFunction),
     mutationStrategy_(mutationStrategy),
@@ -28,17 +28,17 @@ GeneticAlgorithm<Individual,Genotype>::GeneticAlgorithm (
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-template<typename Individual, typename Genotype>
-Population<Individual, Genotype> GeneticAlgorithm<Individual,Genotype>::iterate(                                                                 Population<Individual, Genotype>&& population)
+template<typename Phenotype, typename Genotype>
+Population<Phenotype, Genotype> GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& population)
 {
-  typedef typename FitnessFunction<Individual, Genotype>::Fitness FitnessValue;
-  typedef typename MatingStrategy<Individual, Genotype>::Mating Matingalue;
+  typedef typename FitnessFunction<Phenotype, Genotype>::Fitness FitnessValue;
+  typedef typename MatingStrategy<Phenotype, Genotype>::Mating Matingalue;
   typedef typename Matingalue::value_type MatingEntry;
 
   FitnessValue fitness = fitnessFunction_.calculate(population);
   Matingalue mating = std::move(matingStrategy_.mating(population));
 
-  Population<Individual, Genotype> offspring;
+  Population<Phenotype, Genotype> offspring;
 
   for(MatingEntry& entry : mating)
   {
@@ -49,13 +49,13 @@ Population<Individual, Genotype> GeneticAlgorithm<Individual,Genotype>::iterate(
     for (std::size_t k = 0; k < numOffspring; ++k)
     {
       Genotype g {std::move(combinationStrategy_.combine(g1, g2))};
-      Individual i {std::move(codec_.decode(g))};
-      XXX<Individual, Genotype> child = make_pair(std::move(i), std::move(g));
+      Phenotype i {std::move(codec_.decode(g))};
+      Individual<Phenotype, Genotype> child = make_pair(std::move(i), std::move(g));
       offspring.push_back(std::move(child));
     }
   }
 
-  Population<Individual, Genotype> newPopulation =
+  Population<Phenotype, Genotype> newPopulation =
      survivalPolicy_.selectSurvivors(std::move(population), std::move(offspring));
 
   return std::move(newPopulation);

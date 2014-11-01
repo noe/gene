@@ -25,7 +25,7 @@ struct Network
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-struct MyFactory : public IndividualCodec<Network, Genotype>
+struct MyFactory : public Codec<Network, Genotype>
 {
   Network decode(const Genotype&) const throw(std::invalid_argument) override { }
   Genotype encode(const Network&) const override { };
@@ -42,8 +42,8 @@ struct MyFitness : FitnessFunction<Network, Genotype>
 struct Survival : public SurvivalPolicy<Network, Genotype>
 {
   Population<Network, Genotype>
-          sift (const Population<Network, Genotype>&& ancestors,
-                const Population<Network, Genotype>&& offspring) override { }
+          selectSurvivors (Population<Network, Genotype>&& ancestors,
+                           Population<Network, Genotype>&& offspring) override { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
