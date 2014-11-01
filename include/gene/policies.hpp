@@ -20,14 +20,21 @@ namespace gene {
 template<typename Phenotype, typename Genotype>
 using Individual = std::pair<Phenotype, Genotype>;
 
-template<typename Phenotype>
-using Fitness = std::map<const Phenotype*, float>;
-
 /****************************************************************************
  * Type representing a population
  ***************************************************************************/
 template<typename Phenotype, typename Genotype>
 using Population = std::vector<Individual<Phenotype, Genotype>>;
+
+/****************************************************************************
+ * Type representing the fitness of a population
+ ***************************************************************************/
+template<typename Phenotype>
+struct Fitness
+{
+  std::map<const Phenotype*, float> phenotypeToFitness;
+  std::multimap<float, const Phenotype*> fitnessToPhenotype;
+};
 
 /******************************************************************************
  * Interface abstracting a factory of Individuals.
@@ -86,9 +93,8 @@ struct FitnessFunction
 template<typename Phenotype, typename Genotype>
 struct MutationStrategy
 {
-  virtual Individual<Phenotype, Genotype> mutate(Phenotype,
-                                       Genotype,
-                                       const Codec<Phenotype, Genotype>&) = 0;
+  virtual Individual<Phenotype, Genotype> mutate(
+               Phenotype, Genotype, const Codec<Phenotype, Genotype>&) = 0;
   virtual ~MutationStrategy() { }
 };
 

@@ -32,15 +32,12 @@ template<typename Phenotype, typename Genotype>
 Population<Phenotype, Genotype>
 GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& population)
 {
-  typedef typename MatingStrategy<Phenotype, Genotype>::Mating Matingalue;
-  typedef typename Matingalue::value_type MatingEntry;
-
   Fitness<Phenotype> fitness = fitnessFunction_.calculate(population);
-  Matingalue mating = std::move(matingStrategy_.mating(population, fitness));
+  auto mating = move(matingStrategy_.mating(population, fitness));
 
   Population<Phenotype, Genotype> offspring;
 
-  for(MatingEntry& entry : mating)
+  for (auto& entry : mating)
   {
     const Individual<Phenotype, Genotype>& i1 = *std::get<0>(entry);
     const Individual<Phenotype, Genotype>& i2 = *std::get<1>(entry);
@@ -48,16 +45,13 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
 
     for (std::size_t k = 0; k < numOffspring; ++k)
     {
-      offspring.push_back(std::move(combinationStrategy_.combine(i1, i2, codec_)));
+      offspring.push_back(move(combinationStrategy_.combine(i1, i2, codec_)));
     }
   }
 
-  Population<Phenotype, Genotype> newPopulation =
-     survivalPolicy_.selectSurvivors(std::move(population),
-                                     std::move(offspring),
-                                     fitness);
-
-  return std::move(newPopulation);
+  return move(survivalPolicy_.selectSurvivors(move(population),
+                                              move(offspring),
+                                              fitness));
 }
 
 }
