@@ -36,17 +36,6 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
 
   std::mt19937 generator {std::random_device{}()};
 
-  // Mutate individuals
-  auto mutationRate = mutationRate_.mutationProbability(population);
-  for (auto& i : population)
-  {
-    std::bernoulli_distribution mutation(mutationRate[&i]);
-    if (mutation(generator))
-    {
-      i = mutationStrategy_.mutate(i, codec_);
-    }
-  }
-
   // Calculate fitness of the whole population
   Fitness<Phenotype, Genotype> fitness = fitnessFunction_.calculate(population);
 
@@ -64,6 +53,17 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
     for (std::size_t k = 0; k < numOffspring; ++k)
     {
       offspring.push_back(move(combinationStrategy_.combine(i1, i2, codec_)));
+    }
+  }
+
+  // Mutate individuals
+  auto mutationRate = mutationRate_.mutationProbability(offspring);
+  for (auto& i : offspring)
+  {
+    std::bernoulli_distribution mutation(mutationRate[&i]);
+    if (mutation(generator))
+    {
+      i = mutationStrategy_.mutate(i, codec_);
     }
   }
 
