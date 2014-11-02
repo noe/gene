@@ -12,7 +12,7 @@ GeneticAlgorithm<Phenotype,Genotype>::GeneticAlgorithm (
          Codec<Phenotype, Genotype>& codec,
          FitnessFunction<Phenotype, Genotype>& fitnessFunction,
          MutationStrategy<Phenotype, Genotype>& mutationStrategy,
-         MutationRate<Phenotype>& mutationRate,
+         MutationRate<Phenotype, Genotype>& mutationRate,
          MatingStrategy<Phenotype, Genotype>& matingStrategy,
          CombinationStrategy<Phenotype, Genotype>& combinationStrategy,
          SurvivalPolicy<Phenotype, Genotype>& survivalPolicy)
@@ -30,13 +30,31 @@ GeneticAlgorithm<Phenotype,Genotype>::GeneticAlgorithm (
 ///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 Population<Phenotype, Genotype>
-GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& population)
+GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& p)
 {
+  Population<Phenotype, Genotype>&& population {std::move(p)};
+
+  std::mt19937 generator {std::random_device{}()};
+
+  // Mutate individuals
+  auto mutationRate = mutationRate_.mutationProbability(population);
+  for (auto& i : population)
+  {
+    std::bernoulli_distribution mutation(mutationRate[&i]);
+    if (mutation(generator))
+    {
+      i = mutationStrategy_.mutate(i, codec_);
+    }
+  }
+
+  // Calculate fitness of the whole population
   Fitness<Phenotype, Genotype> fitness = fitnessFunction_.calculate(population);
+
+  // Determine the mating among individuals of the population
   auto mating = move(matingStrategy_.mating(population, fitness));
 
+  // Combine each of the pairs specified in the calculated mating
   Population<Phenotype, Genotype> offspring;
-
   for (auto& entry : mating)
   {
     const Individual<Phenotype, Genotype>& i1 = *std::get<0>(entry);
@@ -49,6 +67,7 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
     }
   }
 
+  // select survivors
   return move(survivalPolicy_.selectSurvivors(move(population),
                                               move(offspring),
                                               fitness));

@@ -93,26 +93,27 @@ struct FitnessFunction
 template<typename Phenotype, typename Genotype>
 struct MutationStrategy
 {
-  virtual Individual<Phenotype, Genotype> mutate(
-               Phenotype, Genotype, const Codec<Phenotype, Genotype>&) = 0;
+  virtual Individual<Phenotype, Genotype> mutate(Individual<Phenotype, Genotype>,
+                                                 const Codec<Phenotype, Genotype>&) = 0;
   virtual ~MutationStrategy() { }
 };
 
 /****************************************************************************
  * Interface abstracting the provider of mutation rate.
  ***************************************************************************/
-template<typename Phenotype>
+template<typename Phenotype, typename Genotype>
 struct MutationRate
 {
-  virtual float mutationProbabilityFor(const Phenotype&) = 0;
+  virtual std::map<const Individual<Phenotype, Genotype>*, float>
+            mutationProbability(const Population<Phenotype, Genotype>&) = 0;
   virtual ~MutationRate() { }
 };
 
 /****************************************************************************
  * Implementation of MutationRate that always returns a constant.
  ***************************************************************************/
-template<typename Phenotype>
-struct ConstantMutationRate : public MutationRate<Phenotype>
+template<typename Phenotype, typename Genotype>
+struct ConstantMutationRate : public MutationRate<Phenotype, Genotype>
 {
   const float mutationRate_;
 
@@ -121,9 +122,15 @@ struct ConstantMutationRate : public MutationRate<Phenotype>
     assert (mutationRate >= 0 && mutationRate <= 1);
   }
 
-  float mutationProbabilityFor(const Phenotype&) override
+  std::map<const Individual<Phenotype, Genotype>*, float>
+            mutationProbability(const Population<Phenotype, Genotype>& population) override
   {
-    return mutationRate_;
+    std::map<const Individual<Phenotype, Genotype>*, float> result;
+    for (const auto& i : population)
+    {
+      result[&i] = mutationRate_;
+    } 
+    return result;
   }
 };
 

@@ -5,6 +5,7 @@
 #ifndef GENETIC_ALGORITHM_HEADER_SEEN___
 #define GENETIC_ALGORITHM_HEADER_SEEN___
 
+#include <random>
 #include "gene/policies.hpp"
 
 namespace gene {
@@ -18,7 +19,7 @@ struct GeneticAlgorithm
   GeneticAlgorithm (Codec<Phenotype, Genotype>& codec,
                     FitnessFunction<Phenotype, Genotype>& fitnessFunction,
                     MutationStrategy<Phenotype, Genotype>& mutationStrategy,
-                    MutationRate<Phenotype>& mutationRate,
+                    MutationRate<Phenotype, Genotype>& mutationRate,
                     MatingStrategy<Phenotype, Genotype>& matingStrategy,
                     CombinationStrategy<Phenotype, Genotype>& combinationStrategy,
                     SurvivalPolicy<Phenotype, Genotype>& survivalPolicy);
@@ -30,7 +31,7 @@ struct GeneticAlgorithm
     Codec<Phenotype, Genotype>& codec_;
     FitnessFunction<Phenotype, Genotype>& fitnessFunction_;
     MutationStrategy<Phenotype, Genotype>& mutationStrategy_;
-    MutationRate<Phenotype>& mutationRate_;
+    MutationRate<Phenotype, Genotype>& mutationRate_;
     MatingStrategy<Phenotype, Genotype>& matingStrategy_;
     CombinationStrategy<Phenotype, Genotype>& combinationStrategy_;
     SurvivalPolicy<Phenotype, Genotype>& survivalPolicy_;
