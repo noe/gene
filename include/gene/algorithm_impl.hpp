@@ -40,7 +40,15 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
   Population<Phenotype, Genotype> population {
     std::move(survivalPolicy_.selectSurvivors(move(p), fitness))};
 
-  fitness = fitnessFunction_.calculate(population);
+  // filter fitness for dropped individuals
+  Fitness<Phenotype, Genotype> tempFitness;
+  for (const Individual<Phenotype, Genotype>& i : population)
+  {
+    float fitnessValue = fitness.individualToFitness[&i];
+    tempFitness.individualToFitness[&i] = fitnessValue;
+    tempFitness.fitnessToIndividual.insert(std::make_pair(fitnessValue, &i));
+  }
+  fitness = std::move(tempFitness);
 
   // Determine the mating among individuals of the population
   auto mating = matingStrategy_.mating(population, fitness);
