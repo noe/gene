@@ -32,15 +32,18 @@ template<typename Phenotype, typename Genotype>
 Population<Phenotype, Genotype>
 GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& p)
 {
-  Population<Phenotype, Genotype>&& population {std::move(p)};
-
   std::mt19937 generator {std::random_device{}()};
 
   // Calculate fitness of the whole population
-  Fitness<Phenotype, Genotype> fitness = fitnessFunction_.calculate(population);
+  Fitness<Phenotype, Genotype> fitness = fitnessFunction_.calculate(p);
+
+  Population<Phenotype, Genotype> population {
+    std::move(survivalPolicy_.selectSurvivors(move(p), fitness))};
+
+  fitness = fitnessFunction_.calculate(population);
 
   // Determine the mating among individuals of the population
-  auto mating = move(matingStrategy_.mating(population, fitness));
+  auto mating = matingStrategy_.mating(population, fitness);
 
   // Combine each of the pairs specified in the calculated mating
   Population<Phenotype, Genotype> offspring;
@@ -67,10 +70,11 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
     }
   }
 
-  // select survivors
-  return move(survivalPolicy_.selectSurvivors(move(population),
-                                              move(offspring),
-                                              fitness));
+  population.insert(population.end(),
+                    std::make_move_iterator(offspring.begin()),
+                    std::make_move_iterator(offspring.end()));
+
+  return std::move(population);
 }
 
 }

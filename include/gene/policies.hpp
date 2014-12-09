@@ -141,9 +141,8 @@ template<typename Phenotype, typename Genotype>
 struct SurvivalPolicy
 {
   virtual Population<Phenotype, Genotype>
-          selectSurvivors (Population<Phenotype, Genotype>&& ancestors,
-                           Population<Phenotype, Genotype>&& offspring,
-                           const Fitness<Phenotype, Genotype>& ancestorsFitness) = 0;
+          selectSurvivors (Population<Phenotype, Genotype>&& population,
+                           const Fitness<Phenotype, Genotype>& fitness) = 0;
   virtual ~SurvivalPolicy() { }
 };
 
