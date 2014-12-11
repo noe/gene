@@ -2,6 +2,8 @@
 // Distributed under New BSD License.
 // (see accompanying file COPYING)
 
+#include <map>
+#include <utility>
 #include "gene/algorithm.hpp"
 
 namespace gene {
@@ -35,54 +37,73 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
   std::mt19937 generator {std::random_device{}()};
 
   // Calculate fitness of the whole population
-  Fitness<Phenotype, Genotype> fitness = fitnessFunction_.calculate(p);
+  PopulationFitness fitness = fitnessFunction_.calculate(p);
 
-  Population<Phenotype, Genotype> population {
-    std::move(survivalPolicy_.selectSurvivors(move(p), fitness))};
+  // Apply selection policy
+  Survivors survivors { survivalPolicy_.selectSurvivors(p, fitness) };
 
   // filter fitness for dropped individuals
-  Fitness<Phenotype, Genotype> tempFitness;
-  for (const Individual<Phenotype, Genotype>& i : population)
+  Population<Phenotype, Genotype> population = survivalPolicy_.select(move(p), survivors);
+  fitness = survivalPolicy_.select(move(fitness), survivors);
+  size_t populationSize = population.size();
+
+  // Select elite for later
+  std::multimap<FitnessType, PopulationIndex> fitnessMap;
+  for (PopulationIndex k = 0; k < populationSize; ++k) fitnessMap.insert(std::make_pair(fitness[k], k));
+  float elitePercentage_ = 0.50;
+  std::size_t eliteCount = populationSize * elitePercentage_;
+  auto it = fitnessMap.rbegin();
+  auto end = fitnessMap.rend();
+  Population<Phenotype, Genotype> elite;
+  for (size_t k = 0; it != end && k < eliteCount; ++it, ++k)
   {
-    float fitnessValue = fitness.individualToFitness[&i];
-    tempFitness.individualToFitness[&i] = fitnessValue;
-    tempFitness.fitnessToIndividual.insert(std::make_pair(fitnessValue, &i));
+    PopulationIndex index = it->second;
+    const Individual<Phenotype, Genotype>& i = population[index];
+    elite.push_back(i);
   }
-  fitness = std::move(tempFitness);
 
   // Determine the mating among individuals of the population
   auto mating = matingStrategy_.mating(population, fitness);
 
   // Combine each of the pairs specified in the calculated mating
   Population<Phenotype, Genotype> offspring;
-  for (auto& entry : mating)
+  for (const auto& entry : mating)
   {
-    const Individual<Phenotype, Genotype>& i1 = *std::get<0>(entry);
-    const Individual<Phenotype, Genotype>& i2 = *std::get<1>(entry);
-    std::size_t numOffspring = std::get<2>(entry);
+    PopulationIndex index1 = std::get<0>(entry);
+    PopulationIndex index2 = std::get<1>(entry);
+    NumberOfChildren numOffspring = std::get<2>(entry);
+  
+    const Individual<Phenotype, Genotype>& i1 = population[index1];
+    const Individual<Phenotype, Genotype>& i2 = population[index2];
 
     for (std::size_t k = 0; k < numOffspring; ++k)
     {
-      offspring.push_back(move(combinationStrategy_.combine(i1, i2, codec_)));
+      offspring.push_back(combinationStrategy_.combine(i1, i2, codec_));
     }
   }
 
-  // Mutate individuals
-  auto mutationRate = mutationRate_.mutationProbability(offspring);
-  for (auto& i : offspring)
+  // Mutate offspring
+  PopulationMutationRates rates = mutationRate_.mutationProbability(offspring);
+  std::size_t offspringSize = offspring.size();
+  for (std::size_t k = 0; k < offspringSize; ++k)
   {
-    std::bernoulli_distribution mutation(mutationRate[&i]);
+    std::bernoulli_distribution mutation(rates[k]);
     if (mutation(generator))
     {
-      i = mutationStrategy_.mutate(i, codec_);
+      offspring[k] = mutationStrategy_.mutate(offspring[k], codec_);
     }
   }
 
-  population.insert(population.end(),
-                    std::make_move_iterator(offspring.begin()),
-                    std::make_move_iterator(offspring.end()));
+  // Use offspring as base for the new population...
+  Population<Phenotype, Genotype> newPopulation (std::move(offspring));
 
-  return std::move(population);
+  // ...but keep the best from the previous generation (i.e. elitism)
+  newPopulation.insert(newPopulation.end(),
+                       std::make_move_iterator(elite.begin()),
+                       std::make_move_iterator(elite.end()));
+
+
+  return newPopulation;
 }
 
 }

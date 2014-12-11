@@ -6,11 +6,12 @@
 #define GENE_POLICIES_HEADER_SEEN_
 
 #include <memory>
+#include <set>
 #include <vector>
-#include <map>
 #include <cassert>
 #include <stdexcept>
 #include <functional>
+#include <algorithm>
 
 namespace gene {
 
@@ -26,15 +27,12 @@ using Individual = std::pair<Phenotype, Genotype>;
 template<typename Phenotype, typename Genotype>
 using Population = std::vector<Individual<Phenotype, Genotype>>;
 
-/****************************************************************************
- * Type representing the fitness of a population
- ***************************************************************************/
-template<typename Phenotype, typename Genotype>
-struct Fitness
-{
-  std::map<const Individual<Phenotype, Genotype>*, float> individualToFitness;
-  std::multimap<float, const Individual<Phenotype, Genotype>*> fitnessToIndividual;
-};
+using PopulationIndex = std::size_t;
+using FitnessType = float;
+using PopulationFitness = std::vector<FitnessType>;
+using Survivors = std::set<PopulationIndex>;
+using PopulationMutationRates = std::vector<float>;
+using NumberOfChildren = std::size_t;
 
 /******************************************************************************
  * Interface abstracting a factory of Individuals.
@@ -68,12 +66,12 @@ struct CombinationStrategy
 template<typename Phenotype, typename Genotype>
 struct MatingStrategy
 {
-  typedef std::vector<std::tuple<const Individual<Phenotype, Genotype>*,
-                                 const Individual<Phenotype, Genotype>*,
-                                 std::size_t>> Mating;
+  typedef std::vector<std::tuple<PopulationIndex,
+                                 PopulationIndex,
+                                 NumberOfChildren>> Mating;
 
   virtual Mating mating(const Population<Phenotype, Genotype>&,
-                        const Fitness<Phenotype, Genotype>&) = 0;
+                        const PopulationFitness&) = 0;
   virtual ~MatingStrategy() { }
 };
 
@@ -83,7 +81,7 @@ struct MatingStrategy
 template<typename Phenotype, typename Genotype>
 struct FitnessFunction
 {
-  virtual Fitness<Phenotype, Genotype> calculate(const Population<Phenotype, Genotype>&) = 0;
+  virtual PopulationFitness calculate(const Population<Phenotype, Genotype>&) = 0;
   virtual ~FitnessFunction() { }
 };
 
@@ -104,8 +102,8 @@ struct MutationStrategy
 template<typename Phenotype, typename Genotype>
 struct MutationRate
 {
-  virtual std::map<const Individual<Phenotype, Genotype>*, float>
-            mutationProbability(const Population<Phenotype, Genotype>&) = 0;
+  virtual PopulationMutationRates mutationProbability(
+                                 const Population<Phenotype, Genotype>&) = 0;
   virtual ~MutationRate() { }
 };
 
@@ -122,15 +120,10 @@ struct ConstantMutationRate : public MutationRate<Phenotype, Genotype>
     assert (mutationRate >= 0 && mutationRate <= 1);
   }
 
-  std::map<const Individual<Phenotype, Genotype>*, float>
-            mutationProbability(const Population<Phenotype, Genotype>& population) override
+  PopulationMutationRates mutationProbability(
+                   const Population<Phenotype, Genotype>& population) override
   {
-    std::map<const Individual<Phenotype, Genotype>*, float> result;
-    for (const auto& i : population)
-    {
-      result[&i] = mutationRate_;
-    } 
-    return result;
+    return PopulationMutationRates(population.size(), mutationRate_);
   }
 };
 
@@ -140,9 +133,30 @@ struct ConstantMutationRate : public MutationRate<Phenotype, Genotype>
 template<typename Phenotype, typename Genotype>
 struct SurvivalPolicy
 {
-  virtual Population<Phenotype, Genotype>
-          selectSurvivors (Population<Phenotype, Genotype>&& population,
-                           const Fitness<Phenotype, Genotype>& fitness) = 0;
+  virtual Survivors selectSurvivors (const Population<Phenotype, Genotype>&,
+                                     const PopulationFitness&) = 0;
+
+  Population<Phenotype, Genotype> select(Population<Phenotype, Genotype>&& p,
+                                         const Survivors& s)
+  {
+    Population<Phenotype, Genotype> result { std::move(p) };
+    auto is_survivor = [&](const auto& e){ return s.find(&e - &p[0]) != s.end(); };
+    auto newEnd = std::remove_if(result.begin(), result.end(), is_survivor);
+    result.erase(newEnd, result.end());
+    return result;
+  }
+
+  // FIXME: make generic
+  PopulationFitness select(PopulationFitness && f,
+                           const Survivors& s)
+  {
+    PopulationFitness result { std::move(f) };
+    auto is_survivor = [&](const auto& e){ return s.find(&e - &f[0]) != s.end(); };
+    auto newEnd = std::remove_if(result.begin(), result.end(), is_survivor);
+    result.erase(newEnd, result.end());
+    return result;
+  }
+
   virtual ~SurvivalPolicy() { }
 };
 
