@@ -24,7 +24,8 @@ struct GeneticAlgorithm
                     CombinationStrategy<Phenotype, Genotype>& combinationStrategy,
                     SurvivalPolicy<Phenotype, Genotype>& survivalPolicy);
 
-  Population<Phenotype, Genotype> iterate(Population<Phenotype, Genotype>&& population);
+  Population<Phenotype, Genotype> iterate(Population<Phenotype,Genotype>&& population,
+                                          std::size_t eliteSize);
 
   private:
 

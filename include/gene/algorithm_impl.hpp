@@ -32,7 +32,8 @@ GeneticAlgorithm<Phenotype,Genotype>::GeneticAlgorithm (
 ///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 Population<Phenotype, Genotype>
-GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& p)
+GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& p,
+                                              std::size_t eliteSize)
 {
   std::mt19937 generator {std::random_device{}()};
 
@@ -50,12 +51,10 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
   // Select elite for later
   std::multimap<FitnessType, PopulationIndex> fitnessMap;
   for (PopulationIndex k = 0; k < populationSize; ++k) fitnessMap.insert(std::make_pair(fitness[k], k));
-  float elitePercentage_ = 0.50;
-  std::size_t eliteCount = populationSize * elitePercentage_;
   auto it = fitnessMap.rbegin();
   auto end = fitnessMap.rend();
   Population<Phenotype, Genotype> elite;
-  for (size_t k = 0; it != end && k < eliteCount; ++it, ++k)
+  for (size_t k = 0; it != end && k < eliteSize; ++it, ++k)
   {
     PopulationIndex index = it->second;
     const Individual<Phenotype, Genotype>& i = population[index];
