@@ -152,5 +152,31 @@ struct TournamentSelection : public SurvivalPolicy<Phenotype, Genotype>
   }
 };
 
+template<typename Phenotype, typename Genotype>
+struct RandomSelection : public SurvivalPolicy<Phenotype, Genotype>
+{
+  private: std::size_t survivorCount_;
+
+  public:
+
+  RandomSelection(std::size_t survivorCount)
+    : survivorCount_(survivorCount) { }
+
+  Survivors selectSurvivors (const Population<Phenotype, Genotype>& population,
+                             const PopulationFitness& fitness) override
+  {
+    std::mt19937 generator {std::random_device{}()};
+    std::uniform_int_distribution<> distribution (0, population.size() - 1);
+
+    Survivors result;
+
+    for (std::size_t k = 0 ; k < survivorCount_; ++k)
+    {
+      result.insert(distribution(generator));
+    }
+    return result; 
+  }
+};
+
 }
 #endif
