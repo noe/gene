@@ -139,22 +139,17 @@ struct SurvivalPolicy
   Population<Phenotype, Genotype> select(Population<Phenotype, Genotype>&& p,
                                          const Survivors& s)
   {
-    Population<Phenotype, Genotype> result { std::move(p) };
-    auto is_survivor = [&](const auto& e){ return s.find(&e - &p[0]) != s.end(); };
-    auto newEnd = std::remove_if(result.begin(), result.end(), is_survivor);
-    result.erase(newEnd, result.end());
-    return result;
+    Population<Phenotype, Genotype> result; result.reserve(s.size());
+    for (std::size_t k : s) result.emplace_back(p[k]);
+    return std::move(result);
   }
 
-  // FIXME: make generic
   PopulationFitness select(PopulationFitness && f,
                            const Survivors& s)
   {
-    PopulationFitness result { std::move(f) };
-    auto is_survivor = [&](const auto& e){ return s.find(&e - &f[0]) != s.end(); };
-    auto newEnd = std::remove_if(result.begin(), result.end(), is_survivor);
-    result.erase(newEnd, result.end());
-    return result;
+    PopulationFitness result; result.reserve(s.size());
+    for (std::size_t k : s) result.emplace_back(f[k]);
+    return std::move(result);
   }
 
   virtual ~SurvivalPolicy() { }

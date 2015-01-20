@@ -5,6 +5,7 @@
 #define GENE_FITNESS_HEADER_SEEN_
 
 #include <limits>
+#include <map>
 
 namespace gene
 {
