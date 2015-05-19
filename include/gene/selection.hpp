@@ -11,6 +11,7 @@
 namespace gene
 {
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 Survivors internalWheelSelection (const Population<Phenotype, Genotype>& population,
                                   const PopulationFitness& fitness,
@@ -23,11 +24,19 @@ Survivors internalWheelSelection (const Population<Phenotype, Genotype>& populat
   for (float point : points)
   {
     auto it = wheel.lower_bound(point);
-    result.insert(it->second);
+    if (it != wheel.end())
+    {
+      result.insert(it->second);
+    }
+    else
+    {
+      result.insert(wheel.begin()->second);
+    }
   }
   return result;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct FitnessProportionateSelection : public SurvivalPolicy<Phenotype, Genotype>
 {
@@ -52,7 +61,7 @@ struct FitnessProportionateSelection : public SurvivalPolicy<Phenotype, Genotype
   }
 };
 
-
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct StochasticUniversalSampling : public SurvivalPolicy<Phenotype, Genotype>
 {
@@ -73,12 +82,14 @@ struct StochasticUniversalSampling : public SurvivalPolicy<Phenotype, Genotype>
     std::multiset<float> points;
     for (std::size_t k = 0; k < size_; ++k)
     {
-      points.insert(start + k * distanceBetweenPoints); 
+      float point = start + k * distanceBetweenPoints;
+      points.insert(point); 
     }
     return internalWheelSelection(population, fitness, points);
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct TruncationSelection: public SurvivalPolicy<Phenotype, Genotype>
 {
@@ -110,6 +121,7 @@ struct TruncationSelection: public SurvivalPolicy<Phenotype, Genotype>
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct TournamentSelection : public SurvivalPolicy<Phenotype, Genotype>
 {
@@ -152,6 +164,7 @@ struct TournamentSelection : public SurvivalPolicy<Phenotype, Genotype>
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct RandomSelection : public SurvivalPolicy<Phenotype, Genotype>
 {

@@ -140,7 +140,10 @@ struct SurvivalPolicy
                                          const Survivors& s)
   {
     Population<Phenotype, Genotype> result; result.reserve(s.size());
-    for (std::size_t k : s) result.emplace_back(p[k]);
+    for (std::size_t k : s)
+    {
+      result.emplace_back(std::move(p[k]));
+    }
     return std::move(result);
   }
 

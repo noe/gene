@@ -11,6 +11,7 @@
 namespace gene
 {
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct FitnessProportionateMating : public MatingStrategy<Phenotype, Genotype>
 {
@@ -42,6 +43,7 @@ struct FitnessProportionateMating : public MatingStrategy<Phenotype, Genotype>
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
 template<typename Phenotype, typename Genotype>
 struct RandomMating : public MatingStrategy<Phenotype, Genotype>
 {

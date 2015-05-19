@@ -40,6 +40,19 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
   // Calculate fitness of the whole population
   PopulationFitness fitness = fitnessFunction_.calculate(p);
 
+  // Select elite for later
+  std::multimap<FitnessType, PopulationIndex> fitnessMap;
+  for (PopulationIndex k = 0; k < fitness.size(); ++k) fitnessMap.insert(std::make_pair(fitness[k], k));
+  auto it = fitnessMap.rbegin();
+  auto end = fitnessMap.rend();
+  Population<Phenotype, Genotype> elite;
+  for (size_t k = 0; it != end && k < eliteSize; ++it, ++k)
+  {
+    PopulationIndex index = it->second;
+    const Individual<Phenotype, Genotype>& i = p[index];
+    elite.push_back(i);
+  }
+
   // Apply selection policy
   Survivors survivors { survivalPolicy_.selectSurvivors(p, fitness) };
 
@@ -47,19 +60,6 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
   Population<Phenotype, Genotype> population = survivalPolicy_.select(move(p), survivors);
   fitness = survivalPolicy_.select(move(fitness), survivors);
   size_t populationSize = population.size();
-
-  // Select elite for later
-  std::multimap<FitnessType, PopulationIndex> fitnessMap;
-  for (PopulationIndex k = 0; k < populationSize; ++k) fitnessMap.insert(std::make_pair(fitness[k], k));
-  auto it = fitnessMap.rbegin();
-  auto end = fitnessMap.rend();
-  Population<Phenotype, Genotype> elite;
-  for (size_t k = 0; it != end && k < eliteSize; ++it, ++k)
-  {
-    PopulationIndex index = it->second;
-    const Individual<Phenotype, Genotype>& i = population[index];
-    elite.push_back(i);
-  }
 
   // Determine the mating among individuals of the population
   auto mating = matingStrategy_.mating(population, fitness);
@@ -102,7 +102,7 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
                        std::make_move_iterator(elite.end()));
 
 
-  return newPopulation;
+  return std::move(newPopulation);
 }
 
 }
