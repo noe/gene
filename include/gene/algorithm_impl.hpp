@@ -59,7 +59,6 @@ GeneticAlgorithm<Phenotype,Genotype>::iterate(Population<Phenotype, Genotype>&& 
   // filter fitness for dropped individuals
   Population<Phenotype, Genotype> population = survivalPolicy_.select(move(p), survivors);
   fitness = survivalPolicy_.select(move(fitness), survivors);
-  size_t populationSize = population.size();
 
   // Determine the mating among individuals of the population
   auto mating = matingStrategy_.mating(population, fitness);
